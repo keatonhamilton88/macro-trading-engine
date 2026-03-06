@@ -1,1 +1,8 @@
-
+pandas
+numpy
+yfinance
+ib_insync
+fredapi
+nasdaq-data-link
+scipy
+matplotlib
