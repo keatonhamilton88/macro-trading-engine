@@ -1,15 +1,20 @@
-from src.layer0.sensor_builder import SensorBuilder
-from src.layer0.force_builder import ForceBuilder
-
 builder = SensorBuilder()
 
-prices = builder.download_prices([
-    "HG=F",
-    "GC=F",
-    "CL=F",
+tickers = [
+    "HG=F",   # copper
+    "GC=F",   # gold
+    "CL=F",   # oil
     "SPY",
+    "TLT",
+    "HYG",
+    "LQD",
+    "EEM",
+    "AUDJPY=X",
+    "DX-Y.NYB",
     "^VIX"
-])
+]
+
+prices = builder.download_prices(tickers)
 
 sensors = builder.build_sensors(prices)
 
