@@ -19,27 +19,27 @@ class SensorBuilder:
         sensors = pd.DataFrame(index=prices.index)
 
         # Growth sensor
-        sensors["growth"] = prices["HG=F"] / prices["GC=F"]
+        sensors["growth_sensors"] = prices["HG=F"] / prices["GC=F"]
 
         # Inflation sensor
-        sensors["inflation"] = prices["CL=F"] / prices["GC=F"]
+        sensors["inflation_sensors"] = prices["CL=F"] / prices["GC=F"]
 
         # Risk appetite
-        sensors["risk"] = prices["SPY"] / prices["TLT"]
+        sensors["risk_sensors"] = prices["SPY"] / prices["TLT"]
 
         # Credit stress
-        sensors["credit"] = prices["HYG"] / prices["LQD"]
+        sensors["credit_sensors"] = prices["HYG"] / prices["LQD"]
 
         # EM stress
-        sensors["em"] = prices["EEM"] / prices["SPY"]
+        sensors["em_sensors"] = prices["EEM"] / prices["SPY"]
 
         # Carry proxy
-        sensors["carry"] = prices["AUDJPY=X"]
+        sensors["carry_sensors"] = prices["AUDJPY=X"]
 
         # Dollar strength
-        sensors["dollar"] = prices["DX-Y.NYB"]
+        sensors["dollar_sensors"] = prices["DX-Y.NYB"]
 
         # Volatility
-        sensors["volatility"] = prices["^VIX"]
+        sensors["volatility_sensors"] = prices["^VIX"]
 
         return sensors.dropna()
