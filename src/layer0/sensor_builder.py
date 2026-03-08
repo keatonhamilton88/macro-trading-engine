@@ -1,6 +1,4 @@
-import yfinance as yf
-import pandas as pd
-
+from layer0.sensor_registry import SENSOR_REGISTRY
 
 class SensorBuilder:
 
@@ -18,28 +16,26 @@ class SensorBuilder:
 
         sensors = pd.DataFrame(index=prices.index)
 
-        # Growth sensor
-        sensors["growth_sensor"] = prices["HG=F"] / prices["GC=F"]
+        for name, fn in SENSOR_REGISTRY.items():
 
-        # Inflation sensor
-        sensors["inflation_sensor"] = prices["CL=F"] / prices["GC=F"]
-
-        # Risk appetite
-        sensors["risk_sensor"] = prices["SPY"] / prices["TLT"]
-
-        # Credit stress
-        sensors["credit_sensor"] = prices["HYG"] / prices["LQD"]
-
-        # EM stress
-        sensors["em_sensor"] = prices["EEM"] / prices["SPY"]
-
-        # Carry proxy
-        sensors["carry_sensor"] = prices["AUDJPY=X"]
-
-        # Dollar strength
-        sensors["dollar_sensor"] = prices["DX-Y.NYB"]
-
-        # Volatility
-        sensors["vol_sensor"] = prices["^VIX"]
+            sensors[name] = fn(prices)
 
         return sensors.dropna()
+
+
+    # Sensor Quality Control Add-on
+    def check_sensor_quality(sensors):
+
+    report = {}
+
+    for col in sensors.columns:
+
+        series = sensors[col]
+
+        report[col] = {
+            "missing_pct": series.isna().mean(),
+            "std": series.std(),
+            "latest": series.iloc[-1]
+        }
+
+    return pd.DataFrame(report).T
