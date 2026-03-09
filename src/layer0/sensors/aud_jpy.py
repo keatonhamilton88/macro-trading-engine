@@ -1,6 +1,6 @@
 import numpy as np
 
-def carry_sensor(prices):
+def audjpy_sensor(prices):
 
     audjpy = prices["AUDJPY=X"]
 
