@@ -1,6 +1,6 @@
 import numpy as np
 
-def risk_sensor(prices):
+def spy_tlt_sensor(prices):
 
     spy = prices["SPY"]
     tlt = prices["TLT"]
