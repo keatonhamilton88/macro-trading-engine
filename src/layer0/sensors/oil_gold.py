@@ -1,6 +1,6 @@
 import numpy as np
 
-def inflation_sensor(prices):
+def oil_gold_sensor(prices):
 
     oil = prices["CL=F"]
     gold = prices["GC=F"]
