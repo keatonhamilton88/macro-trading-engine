@@ -1,6 +1,6 @@
 import numpy as np
 
-def audjpy_sensor(prices):
+def aud_jpy_sensor(prices):
 
     audjpy = prices["AUDJPY=X"]
 
