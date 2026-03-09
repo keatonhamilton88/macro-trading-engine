@@ -1,3 +1,3 @@
-def vol_sensor(prices):
+def vix_sensor(prices):
 
     return prices["^VIX"]
