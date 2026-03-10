@@ -1,6 +1,6 @@
 import numpy as np
 
-def copper_iron_sensor(prices):
+def copper_iron(prices):
 
     hg = prices["HG=F"]
     tio = prices["TIO=F"]
