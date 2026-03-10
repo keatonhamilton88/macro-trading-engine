@@ -1,6 +1,6 @@
 import numpy as np
 
-def gc_si_sensor(prices):
+def gc_si(prices):
 
     gc = prices["GC=F"]
     si = prices["SI=F"]
