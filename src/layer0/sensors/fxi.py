@@ -1,5 +1,5 @@
 import numpy as np
 
-def fxi_sensor(prices):
+def fxi(prices):
 
     return prices["FXI"]
