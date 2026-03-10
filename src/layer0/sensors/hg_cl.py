@@ -1,6 +1,6 @@
 import numpy as np
 
-def copper_oil(prices):
+def hg_cl(prices):
 
     hg = prices["HG=F"]
     cl = prices["CL=F"]
