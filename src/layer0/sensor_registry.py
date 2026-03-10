@@ -20,7 +20,7 @@ from layer0.sensors.vix_slope import vix_slope
 from layer0.sensors.gamma_flip import gamma_flip
 from layer0.sensors.spx_gex import spx_gex
 from layer0.sensors.put_call_ratio import put_call_ratio
-from layer0.sensors._0dte_vol import zero_dte_vol
+from layer0.sensors.zero_dte_vol import zero_dte_vol
 
 from layer0.sensors.dx import dx
 from layer0.sensors.usd_cnh import usd_cnh
@@ -56,7 +56,7 @@ SENSOR_REGISTRY = {
     "gamma_flip": gamma_flip,
     "spx_gex": spx_gex,
     "put_call_ratio": put_call_ratio,
-    "0dte_vol": zero_dte_vol,
+    "zero_dte_vol": zero_dte_vol,
 
     "dx": dx,
     "usd_cnh": usd_cnh,
