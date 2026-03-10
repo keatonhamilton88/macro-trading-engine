@@ -1,4 +1,4 @@
-def eur_usd_sensor(prices):
+def eur_usd(prices):
 
     import numpy as np
 
