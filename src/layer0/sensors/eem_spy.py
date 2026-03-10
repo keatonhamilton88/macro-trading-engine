@@ -1,6 +1,6 @@
 import numpy as np
 
-def eem_spy_sensor(prices):
+def eem_spy(prices):
 
     eem = prices["EEM"]
     spy = prices["SPY"]
