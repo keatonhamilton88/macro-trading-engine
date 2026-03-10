@@ -1,4 +1,4 @@
-def sox_spy_sensor(prices):
+def sox_spy(prices):
 
     import numpy as np
 
