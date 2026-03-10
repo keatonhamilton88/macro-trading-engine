@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd 
 
 def put_call_ratio(prices):    
      if not prices.empty:
