@@ -1,6 +1,6 @@
 import numpy as np
 
-def zn_sr3_sensor(prices):
+def zn_sr3(prices):
 
     zn = prices["ZN"]
     sr3 = prices["SR3"]
