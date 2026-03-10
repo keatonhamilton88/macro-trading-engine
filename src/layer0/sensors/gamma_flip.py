@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 def gamma_flip(prices):
     if not prices.empty:
