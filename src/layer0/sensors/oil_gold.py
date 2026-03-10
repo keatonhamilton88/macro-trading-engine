@@ -1,8 +1,8 @@
 import numpy as np
 
-def oil_gold(prices):
+def cl_gc(prices):
 
-    oil = prices["CL=F"]
-    gold = prices["GC=F"]
+    cl = prices["CL=F"]
+    gc = prices["GC=F"]
 
     return np.log(oil) - np.log(gold)
