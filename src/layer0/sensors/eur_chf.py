@@ -1,6 +1,6 @@
 import numpy as np
 
-def eur_chf_sensor(prices):
+def eur_chf(prices):
 
     eurchf = prices["EURCHF=X"]
 
