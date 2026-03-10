@@ -1,6 +1,6 @@
 import numpy as np
 
-def usd_cnh_sensor(prices):
+def usd_cnh(prices):
 
     usdcnh = prices["USDCNH=X"]
 
