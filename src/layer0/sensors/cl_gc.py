@@ -5,4 +5,4 @@ def cl_gc(prices):
     cl = prices["CL=F"]
     gc = prices["GC=F"]
 
-    return np.log(oil) - np.log(gold)
+    return np.log(cl) - np.log(gc)
