@@ -1,6 +1,6 @@
 import numpy as np
 
-def copper_oil_sensor(prices):
+def copper_oil(prices):
 
     hg = prices["HG=F"]
     cl = prices["CL=F"]
