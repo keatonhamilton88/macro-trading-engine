@@ -1,3 +1,6 @@
+import pandas as pd
+import yfinance as yf
+
 from layer0.sensor_registry import SENSOR_REGISTRY
 
 class SensorBuilder:
@@ -21,21 +24,3 @@ class SensorBuilder:
             sensors[name] = fn(prices)
 
         return sensors.dropna()
-
-
-    # Sensor Quality Control Add-on
-    def check_sensor_quality(sensors):
-
-            report = {}
-
-    for col in sensors.columns:
-
-        series = sensors[col]
-
-        report[col] = {
-            "missing_pct": series.isna().mean(),
-            "std": series.std(),
-            "latest": series.iloc[-1]
-        }
-
-    return pd.DataFrame(report)
