@@ -23,4 +23,4 @@ class SensorBuilder:
 
             sensors[name] = fn(prices)
 
-        return sensors.dropna()
+        return sensors
