@@ -1,6 +1,6 @@
 import numpy as np
 
-def dx_sensor(prices):
+def dx(prices):
 
     dxy = prices["DX-Y.NYB"]
 
