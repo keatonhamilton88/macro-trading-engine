@@ -1,4 +1,4 @@
-def usd_jpy_sensor(prices):
+def usd_jpy(prices):
 
     import numpy as np
 
