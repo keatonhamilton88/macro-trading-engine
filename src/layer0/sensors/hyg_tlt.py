@@ -1,6 +1,6 @@
 import numpy as np
 
-def hyg_tlt_sensor(prices):
+def hyg_tlt(prices):
 
     hyg = prices["HYG"]
     tlt = prices["TLT"]
