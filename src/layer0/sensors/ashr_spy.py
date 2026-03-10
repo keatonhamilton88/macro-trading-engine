@@ -1,6 +1,6 @@
 import numpy as np
 
-def ashr_spy_sensor(prices):
+def ashr_spy(prices):
 
   ashr = prices["ASHR"]
   spy = prices["SPY"]
