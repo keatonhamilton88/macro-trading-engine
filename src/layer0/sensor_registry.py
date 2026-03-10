@@ -1,7 +1,7 @@
-from layer0.sensors.copper_gold import copper_gold
+from layer0.sensors.hg_gc import hg_gc
 from layer0.sensors.hg_tio import hg_tio
 from layer0.sensors.hg_cl import hg_cl
-from layer0.sensors.oil_gold import oil_gold
+from layer0.sensors.cl_gc import cl_gc
 from layer0.sensors.gc_si import gc_si
 
 from layer0.sensors.sox_spy import sox_spy
@@ -34,10 +34,10 @@ from layer0.sensors.zn_zt import zn_zt
 
 SENSOR_REGISTRY = {
 
-    "copper_gold": copper_gold,
+    "hg_gc": hg_gc,
     "hg_tio": hg_tio,
     "hg_cl": hg_cl,
-    "oil_gold": oil_gold,
+    "cl_gc" : cl_gc,
     "gc_si": gc_si,
 
     "sox_spy": sox_spy,
