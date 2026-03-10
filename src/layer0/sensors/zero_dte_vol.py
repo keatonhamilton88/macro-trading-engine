@@ -1,5 +1,5 @@
 import numpy as np 
 
-def 0dte_vol_sensor(prices):
+def zero_dte_vol(prices):
 
-  return prices["0dte_vol"]
+  return prices["zero_dte_vol"]
