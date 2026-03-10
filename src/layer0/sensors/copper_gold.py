@@ -1,6 +1,6 @@
 import numpy as np
 
-def copper_gold_sensor(prices):
+def copper_gold(prices):
 
     hg = prices["HG=F"]
     gc = prices["GC=F"]
