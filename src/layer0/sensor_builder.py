@@ -26,7 +26,7 @@ class SensorBuilder:
     # Sensor Quality Control Add-on
     def check_sensor_quality(sensors):
 
-    report = {}
+        report = {}
 
     for col in sensors.columns:
 
