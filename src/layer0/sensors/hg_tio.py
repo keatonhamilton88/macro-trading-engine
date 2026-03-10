@@ -1,6 +1,6 @@
 import numpy as np
 
-def copper_iron(prices):
+def hg_tio(prices):
 
     hg = prices["HG=F"]
     tio = prices["TIO=F"]
