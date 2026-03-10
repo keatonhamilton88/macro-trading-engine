@@ -1,6 +1,6 @@
 import numpy as np
 
-def vix_vol_sensor(prices):
+def vix_vol(prices):
 
     vixvol = prices["VVIX"]
 
