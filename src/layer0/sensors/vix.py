@@ -1,3 +1,3 @@
-def vix_sensor(prices):
+def vix(prices):
 
     return prices["^VIX"]
