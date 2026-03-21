@@ -13,54 +13,90 @@ Layer 5 — Risk Engine
 
 macro-trading-engine/
 
-README.md
+__pycache__
+    data_loader.cpython-314.pyc
+    features.cpython-314.pyc
+    layer0_force_vectors.cpython-314.pyc
+    layer0_sensors.cpython-314.pyc
+
+data
+    processed
+    raw
+
+research
+    __init__.py
+    run_sensor_analysis.py
+    sensor_correlation_map.py
+    sensor_diagnostics.py
+    sensor_quality_report.py
+    test_layer0.py
+    test_sensors.py
+
+src
+    data
+    __init__.py
+    data_loader.py
+    engine
+    __init__.py
+    algo_trader.py
+    layer-build.py
+features
+     __init__.py
+    feature_engineering.py
+    normalization.py
+    rolling_stats.py
+    transforms.py
+    volatility.py
+layer0
+    sensors
+        __init__.py
+        ashr_spy.py
+        aud_jpy.py
+        cl_gc.py
+        dx.py
+        eem_spy.py
+        eur_chf.py
+        eur_usd.py
+        fxi.py
+        gamma_flip.py
+        gc_si.py
+        hg_cl.py
+        hg_gc.py
+        hg_tio.py
+        hyg_tlt.py
+        put_call_ratio.py
+        sox_spy.py
+        spx_gex.py
+        spy_tlt.py
+        usd_cnh.py
+        usd_jpy.py
+        vix.py
+        vix_slope.py
+        vix_vol.py
+        zero_dte_vol.py
+        zn_sr3.py
+        zn_zt.py
+        __init__.py
+    force_builder.py
+    force_table.py   
+    force_vectors.py
+    sensor_builder.py
+    sensor_registry.py
+
+regime
+    __init__.py
+    macro-momentum-regime-model.py
+
+tests
+    test.py
+    test_data.py
+    test_zscore.py
+    __init__.py
+
 .gitignore
+
+README.md
+
 requirements.txt
 
-config/
-    system_config.yaml
-    data_sources.yaml
-
-data/
-    raw/
-    processed/
-    cache/
-
-src/
-    data/
-        data_loader.py
-        api_clients.py
-
-    features/
-        zscore.py
-        rolling_stats.py
-        transforms.py
-
-    layer0/
-        sensors.py
-        force_vectors.py
-        force_table.py
-
-    regime/
-        regime_classifier.py
-        regime_matrix.py
-
-    alpha/
-        trend_engine.py
-        carry_engine.py
-        mean_reversion_engine.py
-
-    portfolio/
-        capital_router.py
-        exposure_engine.py
-
-    risk/
-        drawdown_firewall.py
-        exposure_caps.py
-
-research/
-    notebooks/
-
-tests/
-    test_zscore.py
-    test_force_vectors.py
+run_engine.py
