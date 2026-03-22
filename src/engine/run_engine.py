@@ -69,3 +69,22 @@ loadings = pca_engine.get_loadings(z_sensors.columns)
 
 print("\nTop PC1 Drivers:")
 print(loadings["PC1"].sort_values(ascending=False))
+
+
+
+
+"""RegimeEngine"""
+
+from src.layer2.regime_engine import RegimeEngine
+
+# compute regime scores
+scores = RegimeEngine.compute_scores(combined)
+
+# classify regime
+regime, confidence = RegimeEngine.classify(scores)
+
+print("\nCurrent Regime:")
+print(regime.tail())
+
+print("\nConfidence:")
+print(confidence.tail())
