@@ -1,5 +1,11 @@
+# Python Byte-code
 __pycache__/
-*.pyc
-.ipynb_checkpoints
+*.py[cod]
+
+# Environments
 .env
 venv/
+env/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
