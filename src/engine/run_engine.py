@@ -1,19 +1,71 @@
+import pandas as pd
+
+from src.layer0.sensor_builder import SensorBuilder
+from src.layer1.force_builder import ForceBuilder
 from src.layer1.pca_engine import PCAEngine
-from src.features.transforms import z_score
+
+# -----------------------------------
+# 1. LOAD DATA
+# -----------------------------------
+
+builder = SensorBuilder()
+
+tickers = [
+    "HG=F","TIO=F","GC=F","CL=F","SI=F",
+    "SOXX","SPY","ASHR","EEM","FXI",
+    "AUDJPY=X","TLT","HYG",
+    "^VIX","^VVIX","^VIX3M",
+    "DX-Y.NYB","USDCNH=X","USDJPY=X","EURUSD=X","EURCHF=X",
+    "ZN=F","SR3=F","ZT=F"
+]
+
+prices = builder.download_prices(tickers)
+
+# -----------------------------------
+# 2. BUILD SENSORS
+# -----------------------------------
+
+sensors = builder.build_sensors(prices)
+
+print("\nSensors:")
+print(sensors.tail())
+
+# -----------------------------------
+# 3. BUILD MACRO FORCES
+# -----------------------------------
+
+forces = ForceBuilder.build_forces(sensors)
+
+print("\nForces:")
+print(forces.tail())
+
+# -----------------------------------
+# 4. PCA OVERLAY
+# -----------------------------------
 
 # normalize sensors
-z_sensors = sensors.apply(lambda x: z_score(x))
+z_sensors = (sensors - sensors.mean()) / sensors.std()
 
-# run PCA
 pca_engine = PCAEngine(n_components=3)
 pc_df = pca_engine.fit_transform(z_sensors)
 
+print("\nPCA Components:")
 print(pc_df.tail())
 
+# -----------------------------------
+# 5. COMBINE FEATURES
+# -----------------------------------
 
 combined = pd.concat([forces, pc_df], axis=1)
 
+print("\nCombined Feature Set:")
+print(combined.tail())
+
+# -----------------------------------
+# 6. PCA LOADINGS (INTERPRETATION)
+# -----------------------------------
 
 loadings = pca_engine.get_loadings(z_sensors.columns)
 
+print("\nTop PC1 Drivers:")
 print(loadings["PC1"].sort_values(ascending=False))
