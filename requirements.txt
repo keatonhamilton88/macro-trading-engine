@@ -6,3 +6,7 @@ fredapi
 nasdaq-data-link
 scipy
 matplotlib
+python-dotenv
+scikit-learn
+ta-lib
+pandas-ta
