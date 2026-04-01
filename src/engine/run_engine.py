@@ -61,6 +61,33 @@ combined = pd.concat([forces, pc_df], axis=1)
 print("\nCombined Feature Set:")
 print(combined.tail())
 
+from src.layer2.hmm_regime_engine import HMMRegimeEngine
+
+# -----------------------------------
+# HMM REGIME DETECTION
+# -----------------------------------
+
+hmm_engine = HMMRegimeEngine(n_states=4)
+
+# fit model
+hmm_engine.fit(combined)
+
+# predict regimes
+states = hmm_engine.predict_states(combined)
+
+print("\nHMM States:")
+print(states.tail())
+
+# probabilities (confidence)
+probs = hmm_engine.predict_probabilities(combined)
+
+print("\nState Probabilities:")
+print(probs.tail())
+
+# transition matrix
+print("\nTransition Matrix:")
+print(hmm_engine.get_transition_matrix())
+
 # -----------------------------------
 # 6. PCA LOADINGS (INTERPRETATION)
 # -----------------------------------
