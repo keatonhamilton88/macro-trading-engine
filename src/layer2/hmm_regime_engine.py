@@ -60,3 +60,45 @@ class HMMRegimeEngine:
             columns=[f"to_{i}" for i in range(self.n_states)],
             index=[f"from_{i}" for i in range(self.n_states)]
         )
+
+
+    def describe_states(features, states):
+
+    df = features.copy()
+    df["state"] = states
+
+    summary = df.groupby("state").mean()
+
+    return summary
+
+    summary = describe_states(combined, states)
+
+    print("\nState Characteristics:")
+    print(summary)
+
+
+    def label_states(states):
+
+    STATE_LABELS = {
+        0: "risk_on",
+        1: "risk_off",
+        2: "neutral",
+        3: "stress"
+    }
+
+    return states.map(STATE_LABELS)
+
+
+
+    def apply_persistence_filter(states, window=3):
+
+    filtered = states.copy()
+
+    for i in range(window, len(states)):
+        if len(set(states.iloc[i-window:i])) == 1:
+            filtered.iloc[i] = states.iloc[i]
+        else:
+            filtered.iloc[i] = filtered.iloc[i-1]
+
+    return filtered
+    
