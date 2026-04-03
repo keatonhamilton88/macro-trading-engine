@@ -7,13 +7,12 @@ class ForceLattice:
         self.lookback = lookback
         self.z_scores = pd.DataFrame(index=data.index, columns=data.columns)
     
-    def compute_z_scores(self):
-        for col in self.data.columns:
-            self.z_scores[col] = (
-                (self.data[col] - self.data[col].rolling(self.lookback).mean()) /
-                self.data[col].rolling(self.lookback).std()
-            )
-        return self.z_scores
+    def compute_z_scores(series, lookback=252):
+        returns = series.pct_change()
+        mean = returns.rolling(lookback).mean()
+        std = returns.rolling(lookback).std()
+        z = (returns - mean) / std
+        return z
 
     def aggregate_force_vectors(self, force_domains: dict):
         force_vectors = pd.DataFrame(index=self.data.index)
