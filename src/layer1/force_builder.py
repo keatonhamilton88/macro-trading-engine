@@ -52,7 +52,7 @@ class ForceBuilder:
     def build_forces(sensor_df, lookback=252):
 
         # normalize sensors first
-        z_sensors = sensor_df.apply(lambda x: z_score(x, lookback))
+        z_sensors = sensor_df.apply(lambda x: zscore_returns(x, lookback))
 
         forces = pd.DataFrame(index=sensor_df.index)
 
