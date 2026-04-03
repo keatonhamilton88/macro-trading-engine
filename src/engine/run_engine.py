@@ -44,7 +44,9 @@ print(forces.tail())
 # -----------------------------------
 
 # normalize sensors
-z_sensors = (sensors - sensors.mean()) / sensors.std()
+from transforms import zscore_returns
+
+z_sensors = sensors.apply(lambda x: zscore_returns(x))
 
 pca_engine = PCAEngine(n_components=3)
 pc_df = pca_engine.fit_transform(z_sensors)
