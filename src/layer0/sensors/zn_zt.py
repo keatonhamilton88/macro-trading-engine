@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd 
 
 def zn_zt(prices):\
     if "ZN=F" not in prices or "ZT=F" not in prices:
