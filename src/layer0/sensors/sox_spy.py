@@ -1,8 +1,10 @@
+import numpy as np
+
 def sox_spy(prices):
+    if "SOXX" not in prices or "SPY" not in prices:
+        return pd.Series(index=prices.index, dtype=float)
 
-    import numpy as np
-
-    sox = prices["SOXX"]
-    spy = prices["SPY"]
+    sox = prices["SOXX"].ffill()
+    spy = prices["SPY"].ffill()
 
     return np.log(sox) - np.log(spy)
