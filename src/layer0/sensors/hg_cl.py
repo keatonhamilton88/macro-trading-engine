@@ -1,7 +1,7 @@
 import numpy as np
 
 def hg_cl(prices):
-    if "HG=F not in prices or "CL=F" not in prices:
+    if "HG=F" not in prices or "CL=F" not in prices:
         return pd.Series(index=prices.index, dtype=float)
 
     hg = prices["HG=F"].ffill()
