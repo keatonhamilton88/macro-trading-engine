@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd 
 
 def hg_cl(prices):
     if "HG=F" not in prices or "CL=F" not in prices:
