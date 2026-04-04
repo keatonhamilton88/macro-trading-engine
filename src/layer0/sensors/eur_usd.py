@@ -1,4 +1,5 @@
 import numpy as np 
+import pandas as pd 
 
 def eur_usd(prices):
     if "EURUSD=X" not in prices:
