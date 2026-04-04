@@ -64,7 +64,11 @@ class ForceBuilder:
             "zn=f", "zt=f", "sr3=f"
 ]
 
-    
+            # Inside build_forces loop:
+            normalized_tickers = [t.lower() for t in RAW_PRICE_TICKERS]
+            use_return = col.lower() in normalized_tickers
+
+   
         z_sensors = pd.DataFrame(index=sensor_df.index)
     
         # 2. Loop through every column and apply the specific Z-Score logic
