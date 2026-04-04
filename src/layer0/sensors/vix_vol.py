@@ -12,3 +12,11 @@ def vix_vol(prices):
 
     return vixvol.rename("vix_vol_log")
 
+
+#  Integration Tip for PCA
+# try passing two versions of VVIX to the PCA:
+# The Level: np.log(VVIX) (captures the current "Fear Regime").
+# The Momentum: VVIX.pct_change() (captures the "Sudden Panic"). 
+# This allows the PCA to distinguish between a market that is consistently volatile (like a bear market) and a market that just suffered a sudden shock. 
+
+
