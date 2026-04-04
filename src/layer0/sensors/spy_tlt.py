@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd 
 
 def spy_tlt(prices):
     if "SPY" not in prices or "TLT" not in prices:
