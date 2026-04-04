@@ -1,5 +1,5 @@
 import pandas as pd
-from transforms import zscore_returns
+from transforms import zscore_sensor
 
 
 class ForceBuilder:
