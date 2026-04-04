@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd 
 
 def hg_tio(prices):
     if "HG=F" not in prices or "TIO=F" not in prices:
