@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd 
 
 def gc_si(prices):
     if "GC=F" not in prices or "SI=F" not in prices:
