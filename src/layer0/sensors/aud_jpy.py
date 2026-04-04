@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd 
 
 def aud_jpy(prices):
     if "AUDJPY=X" not in prices:
