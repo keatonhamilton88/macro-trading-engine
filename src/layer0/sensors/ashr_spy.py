@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 def ashr_spy(prices):
   if "ASHR" not in prices or "SPY" not in prices:
