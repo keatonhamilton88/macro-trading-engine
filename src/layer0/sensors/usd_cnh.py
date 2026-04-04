@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd 
 
 def usd_cnh(prices):
     if "CNY=X" not in prices:
