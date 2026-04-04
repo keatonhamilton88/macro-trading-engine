@@ -1,7 +1,9 @@
+import numpy as np
+
 def usd_jpy(prices):
+    if "JPY=X" not in prices:
+        return pd.Series(index=prices.index, dtype=float)
 
-    import numpy as np
-
-    usdjpy = prices["JPY=X"]
+    usdjpy = prices["JPY=X"].ffill()
 
     return np.log(usdjpy)
