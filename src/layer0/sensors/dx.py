@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd 
 
 def dx(prices):
     if "DX.Y.NYB" not in prices:
