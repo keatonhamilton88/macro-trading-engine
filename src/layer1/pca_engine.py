@@ -4,6 +4,7 @@ import pandas as pd
 
 class PCAEngine:
 
+    # The three components are PC1 - master force(beta/trend), PC2 - volatility/stress capturing risk/growth, PC3 - rotation between forces
     def __init__(self, n_components=3):
         self.n_components = n_components
         self.model = PCA(n_components=n_components)
@@ -20,6 +21,7 @@ class PCAEngine:
 
         return pc_df
 
+    # important "diagnostic" tool. It tells you exactly which sensors are in the driver's seat.
     def get_loadings(self, sensor_columns):
 
         return pd.DataFrame(
