@@ -10,6 +10,7 @@ def run_engine_test():
     # Download at least 2 years for the 252-day PCA lookback
     tickers = ["SPY", "^VIX", "^VIX3M", "AUDJPY=X", "CL=F", "GC=F"]
     raw_data = yf.download(tickers, start="2022-01-01")['Close']
+    raw_data = raw_data.ffill().dropna() 
     
     # 2. BUILD SENSORS
     # Create a dataframe where each column is one of your sensor outputs
