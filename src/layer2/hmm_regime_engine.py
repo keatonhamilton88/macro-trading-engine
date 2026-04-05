@@ -64,12 +64,12 @@ class HMMRegimeEngine:
 
     def describe_states(features, states):
 
-    df = features.copy()
-    df["state"] = states
-
-    summary = df.groupby("state").mean()
-
-    return summary
+        df = features.copy()
+        df["state"] = states
+    
+        summary = df.groupby("state").mean()
+    
+        return summary
 
     summary = describe_states(combined, states)
 
@@ -79,26 +79,37 @@ class HMMRegimeEngine:
 
     def label_states(states):
 
-    STATE_LABELS = {
-        0: "risk_on",
-        1: "risk_off",
-        2: "neutral",
-        3: "stress"
-    }
-
-    return states.map(STATE_LABELS)
+        STATE_LABELS = {
+            0: "risk_on",
+            1: "risk_off",
+            2: "neutral",
+            3: "stress"
+        }
+    
+        return states.map(STATE_LABELS)
 
 
 
     def apply_persistence_filter(states, window=3):
 
-    filtered = states.copy()
+        filtered = states.copy()
+    
+        for i in range(window, len(states)):
+            if len(set(states.iloc[i-window:i])) == 1:
+                filtered.iloc[i] = states.iloc[i]
+            else:
+                filtered.iloc[i] = filtered.iloc[i-1]
+    
+        return filtered
 
-    for i in range(window, len(states)):
-        if len(set(states.iloc[i-window:i])) == 1:
-            filtered.iloc[i] = states.iloc[i]
-        else:
-            filtered.iloc[i] = filtered.iloc[i-1]
 
-    return filtered
+    def fit(self, features: pd.DataFrame):
+        # 'Winsorize' or clip the PCA signals to 3 standard deviations
+        # This prevents the Gaussian HMM from 'stretching' to fit outliers
+        X = features.dropna().clip(lower=features.mean()-3*features.std(), 
+                                    upper=features.mean()+3*features.std(), 
+                                    axis=1).values
+        self.model.fit(X)
+        self.fitted = True
+
     
