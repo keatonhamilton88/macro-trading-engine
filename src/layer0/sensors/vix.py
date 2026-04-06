@@ -8,7 +8,7 @@ def compute(prices, col1):
     data = prices[col1].ffill()
     
     # Note: Remove np.log() for gamma_strength, spx_gex, and put_call_ratio
-    return np.(data) 
+    return np(data) 
 
 
 
