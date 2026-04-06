@@ -1,10 +1,12 @@
 import numpy as np
-import pandas as pd 
+import pandas as pd
 
-def usd_jpy(prices):
-    if "JPY=X" not in prices:
+def compute(prices, col1):
+    if col1 is None: 
         return pd.Series(index=prices.index, dtype=float)
+    
+    data = prices[col1].ffill()
+    
+    # Note: Remove np.log() for gamma_strength, spx_gex, and put_call_ratio
+    return np.log(data) 
 
-    usdjpy = prices["JPY=X"].ffill()
-
-    return np.log(usdjpy)
