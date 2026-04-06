@@ -1,10 +1,16 @@
 import numpy as np
-import pandas as pd 
+import pandas as pd
 
-def aud_jpy(prices):
-    if "AUDJPY=X" not in prices:
+def compute(prices, ticker_col):
+    """
+    ticker_col: The actual column name found by the Builder (e.g., 'AUDJPY=X')
+    """
+    # 1. Safety Check (In case the Builder passed None)
+    if ticker_col is None:
         return pd.Series(index=prices.index, dtype=float)
 
-    audjpy = prices["AUDJPY=X"].ffill()
-
+    # 2. Calculation
+    audjpy = prices[ticker_col].ffill()
     return np.log(audjpy)
+
+
