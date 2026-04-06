@@ -1,14 +1,9 @@
-import numpy as np
-import pandas as pd 
+import pandas as pd
 
-def spx_gex(prices):
-    # 1. Safety Check: If prices is empty, return a blank Series
-    if prices is None or prices.empty:
-        return pd.Series(dtype=float)
+def compute(prices, col1=None): # col1 is None because we have no ticker yet
+    # Returns zeros so the PCA doesn't crash, but matches the index
+    return pd.Series(0.0, index=prices.index, name='placeholder')
 
-    # 2. Placeholder: Return 0.0 for now until you link your GEX source.
-    # Note: Using name='spx_gex' helps your PCA engine identify this column later.
-    return pd.Series(0.0, index=prices.index, name='spx_gex')
 
 
 # The PCA Warning: As soon as you are ready to test your PCA Engine, 
