@@ -1,13 +1,14 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-def vix(prices):
-    # This finds "^VIX", "^vix", or "VIX" automatically
-    ticker = next((c for c in prices.columns if c.upper() == "^VIX"), None)
+def compute(prices, col1):
+    if col1 is None: 
+        return pd.Series(index=prices.index, dtype=float)
     
-    if prices is None or ticker is None:
-        return pd.Series(index=prices.index if prices is not None else [], dtype=float)
+    data = prices[col1].ffill()
+    
+    # Note: Remove np.log() for gamma_strength, spx_gex, and put_call_ratio
+    return np.(data) 
 
-    return prices[ticker]
 
 
