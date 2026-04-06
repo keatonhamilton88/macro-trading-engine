@@ -1,11 +1,14 @@
 import numpy as np
-import pandas as pd 
+import pandas as pd
 
-def spy_tlt(prices):
-    if "SPY" not in prices or "TLT" not in prices:
+def compute(prices, col1, col2):
+    if col1 is None or col2 is None:
         return pd.Series(index=prices.index, dtype=float)
     
-    spy = prices["SPY"]
-    tlt = prices["TLT"]
+    v1 = prices[col1].ffill()
+    v2 = prices[col2].ffill()
+    
+    # Standard Log-Differential (Growth/Inflation/Credit)
+    # Note: Use v1 / v2 (no log) for vix_ratio
+    return np.log(v1) - np.log(v2)
 
-    return np.log(spy) - np.log(tlt)
