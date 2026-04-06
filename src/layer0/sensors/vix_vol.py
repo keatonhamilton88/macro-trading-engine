@@ -1,16 +1,15 @@
 import numpy as np
 import pandas as pd
 
-def vix_vol(prices):
-    # 1. Safety Check: yfinance ticker is '^VVIX'
-    if "^VVIX" not in prices:
+def compute(prices, col1):
+    if col1 is None: 
         return pd.Series(index=prices.index, dtype=float)
+    
+    data = prices[col1].ffill()
+    
+    # Note: Remove np.log() for gamma_strength, spx_gex, and put_call_ratio
+    return np(data) 
 
-    # 2. Log Transform: Compresses the 'spikes' in VVIX
-    # (VVIX can jump from 80 to 150; log makes this move more linear)
-    vixvol = np.log(prices["^VVIX"].ffill())
-
-    return vixvol.rename("vix_vol_log")
 
 
 #  Integration Tip for PCA
