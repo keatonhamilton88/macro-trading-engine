@@ -1,10 +1,12 @@
 import numpy as np
-import pandas as pd 
+import pandas as pd
 
-def fxi(prices):
-    if "FXI" not in prices:
+def compute(prices, col1):
+    if col1 is None: 
         return pd.Series(index=prices.index, dtype=float)
     
-    fxi = prices["FXI"].ffill()
+    data = prices[col1].ffill()
     
-    return np.log(fxi)
+    # Note: Remove np.log() for gamma_strength, spx_gex, and put_call_ratio
+    return np.log(data) 
+
