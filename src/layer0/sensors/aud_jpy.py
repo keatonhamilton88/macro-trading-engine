@@ -1,16 +1,15 @@
 import numpy as np
 import pandas as pd
 
-def compute(prices, ticker_col):
-    """
-    ticker_col: The actual column name found by the Builder (e.g., 'AUDJPY=X')
-    """
-    # 1. Safety Check (In case the Builder passed None)
-    if ticker_col is None:
+def compute(prices, col1):
+    if col1 is None: 
         return pd.Series(index=prices.index, dtype=float)
+    
+    data = prices[col1].ffill()
+    
+    # Note: Remove np.log() for gamma_strength, spx_gex, and put_call_ratio
+    return np.log(data) 
 
-    # 2. Calculation
-    audjpy = prices[ticker_col].ffill()
-    return np.log(audjpy)
+
 
 
