@@ -1,12 +1,16 @@
 import numpy as np
-import pandas as pd 
+import pandas as pd
 
-def compute(prices, ashr_col, spy_col):
-    if ashr_col is None or spy_col is None:
+def compute(prices, col1, col2):
+    if col1 is None or col2 is None:
         return pd.Series(index=prices.index, dtype=float)
     
-    ashr = prices[ashr_col].ffill()
-    spy = prices[spy_col].ffill()
-    return np.log(ashr) - np.log(spy)
+    v1 = prices[col1].ffill()
+    v2 = prices[col2].ffill()
+    
+    # Standard Log-Differential (Growth/Inflation/Credit)
+    # Note: Use v1 / v2 (no log) for vix_ratio
+    return np.log(v1) - np.log(v2)
+
 
   
