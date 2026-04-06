@@ -1,13 +1,8 @@
-import numpy as np 
 import pandas as pd
 
-def zero_dte_vol(prices):
-    # 1. Safety Check: If prices is empty, return a blank Series
-    if prices is None or prices.empty:
-        return pd.Series(dtype=float)
-
-  
-    return pd.Series(0.0, index=prices.index, name='zero_dte_vol')
+def compute(prices, col1=None): # col1 is None because we have no ticker yet
+    # Returns zeros so the PCA doesn't crash, but matches the index
+    return pd.Series(0.0, index=prices.index, name='placeholder')
 
 
 # Future Logic for the Sensor
