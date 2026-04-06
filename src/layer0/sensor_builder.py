@@ -22,7 +22,7 @@ class SensorBuilder:
             for s_name in sensor_list:
                 try:
                     # Dynamically find the file in your layer0 folder
-                    module = importlib.import_module(f"layer0.{s_name}")
+                    module = importlib.import_module(f"src.layer0.sensors.{s_name}")
                     
                     if "_" in s_name:
                         # RATIO: Find two parts (e.g. 'hg' and 'gc')
