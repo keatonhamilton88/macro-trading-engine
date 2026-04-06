@@ -11,5 +11,3 @@ def compute(prices, col1, col2):
     # Standard Log-Differential (Growth/Inflation/Credit)
     # Note: Use v1 / v2 (no log) for vix_ratio
     return np.log(v1) - np.log(v2)
-
-    return np.log(hg) - np.log(cl)
