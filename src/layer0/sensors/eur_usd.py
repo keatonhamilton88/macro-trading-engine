@@ -1,10 +1,12 @@
-import numpy as np 
-import pandas as pd 
+import numpy as np
+import pandas as pd
 
-def eur_usd(prices):
-    if "EURUSD=X" not in prices:
+def compute(prices, col1):
+    if col1 is None: 
         return pd.Series(index=prices.index, dtype=float)
+    
+    data = prices[col1].ffill()
+    
+    # Note: Remove np.log() for gamma_strength, spx_gex, and put_call_ratio
+    return np.log(data) 
 
-    eurusd = prices["EURUSD=X"].ffill()
-
-    return np.log(eurusd)
