@@ -15,7 +15,7 @@ from layer0.sensors.hyg_tlt import hyg_tlt
 
 from layer0.sensors.vix import vix
 from layer0.sensors.vix_vol import vix_vol
-from layer0.sensors.vix_slope import vix_slope
+from layer0.sensors.vix_slope import vix_ratio
 
 from layer0.sensors.gamma_flip import gamma_flip
 from layer0.sensors.spx_gex import spx_gex
@@ -51,7 +51,7 @@ SENSOR_REGISTRY = {
 
     "vix": vix,
     "vix_vol": vix_vol,
-    "vix_slope": vix_slope,
+    "vix_slope": vix_ratio,
 
     "gamma_flip": gamma_flip,
     "spx_gex": spx_gex,
