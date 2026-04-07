@@ -25,7 +25,7 @@ class SensorBuilder:
                     module = importlib.import_module(f"src.layer0.sensors.{s_name}")
                     
                     # Define names that have underscores but are NOT ratios
-                SINGLE_EXCEPTIONS = ["aud_jpy", "vix_vol", "vix_slope", "usd_cnh", "eur_usd", "usd_jpy", "eur_chf", "spx_gex", "gamma_flip"]
+                SINGLE_EXCEPTIONS = ["aud_jpy", "vix_vol", "vix_ratio", "usd_cnh", "eur_usd", "usd_jpy", "eur_chf", "spx_gex", "gamma_strength"]
                 
                 if "_" in s_name and s_name not in SINGLE_EXCEPTIONS:
                     # This is a REAL ratio (e.g., ashr_spy)
