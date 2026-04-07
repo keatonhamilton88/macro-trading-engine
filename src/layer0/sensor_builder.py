@@ -1,7 +1,7 @@
 import pandas as pd
 import yfinance as yf
 import importlib
-from layer1.ForceBuilder import ForceBuilder # Import your blueprint
+from src.layer1.force_builder import ForceBuilder # Import your blueprint
 
 class SensorBuilder:
     def download_prices(self, tickers, start="2010-01-01"):
