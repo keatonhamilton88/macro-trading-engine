@@ -24,8 +24,8 @@ class ForceBuilder:
         "risk": [
             "vix",
             "vix_vol",
-            "vix_slope",
-            "gamma_flip",
+            "vix_ratio",
+            "gamma_strength",
             "spx_gex"
         ],
 
@@ -51,7 +51,7 @@ class ForceBuilder:
     @staticmethod
     def build_forces(sensor_df):
         # 1. 'Fast' sensors from your Risk bucket
-        FAST_SENSORS = ["vix", "vix_vol", "vix_slope", "gamma_flip", "spx_gex", "zero_dte_vol"]
+        FAST_SENSORS = ["vix", "vix_vol", "vix_ratio", "gamma_strength", "spx_gex", "zero_dte_vol"]
     
         # 2. COMPLETE list of all raw components used in your Ratios + Dollar force
         # If it's a standalone price or part of a ratio (like 'hg' in 'hg_gc'), it goes here.
