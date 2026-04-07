@@ -33,10 +33,10 @@ class PCAEngine:
 
     
     def get_explained_variance(self):
-    """
-    Returns the % of market movement explained by each PC.
-    If PC1 + PC2 < 50%, the market is too noisy to trade.
-    """
+        """
+        Returns the % of market movement explained by each PC.
+        If PC1 + PC2 < 50%, the market is too noisy to trade.
+        """
         return pd.Series(
             self.model.explained_variance_ratio_,
             index=[f"PC{i+1}" for i in range(self.n_components)],
