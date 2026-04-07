@@ -1,5 +1,5 @@
 # In src/layer0/sensors/gamma_strength.py
-def compute(prices, price_col):
+def compute(prices, price_col, col2=None):
     # We find the 'GEX' or 'Flip' column manually here to keep the loop simple
     flip_col = next((c for c in prices.columns if "GEX" in c.upper() or "FLIP" in c.upper()), None)
     
