@@ -71,7 +71,7 @@ class HMMRegimeEngine:
     
         return summary
 
-    summary = describe_states(combined, states)
+    summary = describe_states(features, states)
 
     print("\nState Characteristics:")
     print(summary)
