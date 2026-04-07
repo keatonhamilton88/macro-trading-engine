@@ -51,6 +51,9 @@ def run_trading_engine():
     pca = PCAEngine(n_components=3)
     # PCA runs on the 6 'Forces', not the 27 raw sensors
     pc_df = pca.fit_transform(forces)
+
+    # --- THE BRIDGE ---
+    combined = pd.concat([forces, pc_df], axis=1).dropna()
     
     # -----------------------------------
     # 5. HMM REGIME DETECTION (Layer 2)
