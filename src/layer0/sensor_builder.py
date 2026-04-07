@@ -23,33 +23,32 @@ class SensorBuilder:
         return next((c for c in df.columns if c.upper() == name.upper()), None)
 
 
-    def build_sensors(self, raw_prices):
+        def build_sensors(self, raw_prices):
         sensor_df = pd.DataFrame(index=raw_prices.index)
         
-        # We loop through the FORCE_MAP to see what we actually NEED to build
+        # Names with underscores that are SINGLE assets
+        SINGLE_EXCEPTIONS = ["aud_jpy", "vix_vol", "vix_ratio", "usd_cnh", "eur_usd", "usd_jpy", "eur_chf", "spx_gex", "gamma_strength"]
+
         for force_name, sensor_list in ForceBuilder.FORCE_MAP.items():
             for s_name in sensor_list:
                 try:
-                    # Dynamically find the file in your layer0 folder
                     module = importlib.import_module(f"src.layer0.sensors.{s_name}")
                     
-                    # Define names that have underscores but are NOT ratios
-                SINGLE_EXCEPTIONS = ["aud_jpy", "vix_vol", "vix_ratio", "usd_cnh", "eur_usd", "usd_jpy", "eur_chf", "spx_gex", "gamma_strength"]
-                
-                if "_" in s_name and s_name not in SINGLE_EXCEPTIONS:
-                    # This is a REAL ratio (e.g., ashr_spy)
-                    t1, t2 = s_name.split("_")
-                    c1, c2 = self.get_col(raw_prices, t1), self.get_col(raw_prices, t2)
-                    sensor_df[s_name] = module.compute(raw_prices, c1, c2)
-                else:
-                    # This is a SINGLE asset (even if it has an underscore like aud_jpy)
-                    c1 = self.get_col(raw_prices, s_name)
-                    sensor_df[s_name] = module.compute(raw_prices, c1)
-
+                    # Logic: If it has an underscore AND it's not a single exception -> It's a Ratio
+                    if "_" in s_name and s_name not in SINGLE_EXCEPTIONS:
+                        parts = s_name.split("_")
+                        t1, t2 = parts[0], parts[1] # Safe split
+                        c1, c2 = self.get_col(raw_prices, t1), self.get_col(raw_prices, t2)
+                        sensor_df[s_name] = module.compute(raw_prices, c1, c2)
+                    else:
+                        # It's a Single asset
+                        c1 = self.get_col(raw_prices, s_name)
+                        sensor_df[s_name] = module.compute(raw_prices, c1)
                         
                 except Exception as e:
-                    print(f"⚠️ Warning: Could not build {s_name}: {e}")
+                    print(f"Could not build sensor {s_name}: {e}")
                     sensor_df[s_name] = pd.Series(0.0, index=raw_prices.index)
-
+                    
         return sensor_df
+
 
