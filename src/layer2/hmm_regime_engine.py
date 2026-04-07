@@ -71,10 +71,10 @@ class HMMRegimeEngine:
     
         return summary
 
-    summary = describe_states(features, states)
+    # summary = describe_states(features, states)
 
-    print("\nState Characteristics:")
-    print(summary)
+    # print("\nState Characteristics:")
+    # print(summary)
 
 
     def label_states(states):
