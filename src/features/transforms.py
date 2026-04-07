@@ -12,8 +12,10 @@ def zscore_sensor(series, lookback=252, is_return=True):
     else:
         data = series
 
-    mean = data.rolling(lookback).mean()
-    std = data.rolling(lookback).std()
+    # ADD min_periods=30 HERE
+    # This ensures your 'forces' aren't empty for the first year
+    mean = data.rolling(window=lookback, min_periods=30).mean()
+    std = data.rolling(window=lookback, min_periods=30).std()
     
     # Prevents division by zero and handles NaNs
     z = (data - mean) / (std + 1e-8)
