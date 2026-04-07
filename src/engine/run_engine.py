@@ -63,6 +63,13 @@ def run_trading_engine():
     
     hmm = HMMRegimeEngine(n_states=4)
     hmm.fit(combined_features)
+
+    # 1. Get the raw states from the HMM
+    states = hmm.predict_states(combined)
+    
+    # 2. APPLY THE FILTER (The "Anti-Flicker" step)
+    # This prevents the regime from jumping back and forth rapidly
+    filtered_states = hmm.apply_persistence_filter(states, window=3)
     
     current_state = hmm.predict_states(combined_features).iloc[-1]
     probs = hmm.predict_probabilities(combined_features).iloc[-1]
