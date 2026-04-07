@@ -66,6 +66,11 @@ def run_trading_engine():
     
     current_state = hmm.predict_states(combined_features).iloc[-1]
     probs = hmm.predict_probabilities(combined_features).iloc[-1]
+
+    summary = describe_states(features, states)
+
+    print("\nState Characteristics:")
+    print(summary)
     
     # -----------------------------------
     # 6. OUTPUT & DIAGNOSTICS
