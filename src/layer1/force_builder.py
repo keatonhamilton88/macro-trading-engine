@@ -57,11 +57,12 @@ class ForceBuilder:
         # 2. COMPLETE list of all raw components used in your Ratios + Dollar force
         # If it's a standalone price or part of a ratio (like 'hg' in 'hg_gc'), it goes here.
         RAW_PRICE_TICKERS = [
-            "dx", "usd_cnh", "eur_usd", "usd_jpy", "eur_chf", # Dollar bucket
-            "spy", "sox", "ashr", "eem", "tlt", "hyg",      # Equity/Credit bucket
-            "cl=f", "gc=f", "hg=f", "si=f", "tio=f",         # Inflation/Growth bucket
-            "zn=f", "zt=f", "sr3=f", "audjpy=x"              # Rates/Growth bucket
+            "DX-Y.NYB", "USDCNH=X", "EURUSD=X", "USDJPY=X", "EURCHF=X", # Dollar
+            "SPY", "SOXX", "ASHR", "EEM", "TLT", "HYG",                 # Equities/Bonds
+            "CL=F", "GC=F", "HG=F", "SI=F", "TIO=F",                    # Commodities
+            "ZN=F", "ZT=F", "SR3=F", "AUDJPY=X"                         # Rates/Forex
         ]
+
     
         z_sensors = pd.DataFrame(index=sensor_df.index)
         normalized_fast = [s.lower() for s in FAST_SENSORS]
