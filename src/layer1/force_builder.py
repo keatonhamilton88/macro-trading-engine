@@ -88,4 +88,4 @@ class ForceBuilder:
             if valid_sensors:
                 forces[force_name] = z_sensors[valid_sensors].mean(axis=1, skipna=True)
     
-        return forces.ffill().dropna()
+        return forces.dropna(how='all').ffill().bfill()
