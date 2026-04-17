@@ -26,7 +26,8 @@ class ForceBuilder:
             "vix_vol",
             "vix_ratio",
             "gamma_strength",
-            "spx_gex"
+            "spx_gex",
+            "zero_dte_vol"
         ],
 
         "dollar": [
