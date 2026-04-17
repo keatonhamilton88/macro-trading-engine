@@ -86,6 +86,6 @@ class ForceBuilder:
             # This aligns your processed z_sensors back to the 6 force names
             valid_sensors = [s for s in sensor_list if s in z_sensors.columns]
             if valid_sensors:
-                forces[force_name] = z_sensors[valid_sensors].mean(axis=1)
+                forces[force_name] = z_sensors[valid_sensors].mean(axis=1, skipna=True)
     
         return forces.ffill().dropna()
