@@ -58,7 +58,7 @@ layer0
         eur_chf.py
         eur_usd.py
         fxi.py
-        gamma_flip.py
+        gamma_strength.py
         gc_si.py
         hg_cl.py
         hg_gc.py
@@ -71,7 +71,7 @@ layer0
         usd_cnh.py
         usd_jpy.py
         vix.py
-        vix_slope.py
+        vix_ratio.py
         vix_vol.py
         zero_dte_vol.py
         zn_sr3.py
