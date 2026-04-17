@@ -16,8 +16,11 @@ class HMMRegimeEngine:
         self.fitted = False
 
     def fit(self, features: pd.DataFrame):
-
-        X = features.dropna().values
+        # 'Winsorize' or clip the PCA signals to 3 standard deviations
+        # This prevents the Gaussian HMM from 'stretching' to fit outliers
+        X = features.dropna().clip(lower=features.mean()-3*features.std(), 
+                                    upper=features.mean()+3*features.std(), 
+                                    axis=1).values
         self.model.fit(X)
         self.fitted = True
 
@@ -103,13 +106,6 @@ class HMMRegimeEngine:
         return filtered
 
 
-    def fit(self, features: pd.DataFrame):
-        # 'Winsorize' or clip the PCA signals to 3 standard deviations
-        # This prevents the Gaussian HMM from 'stretching' to fit outliers
-        X = features.dropna().clip(lower=features.mean()-3*features.std(), 
-                                    upper=features.mean()+3*features.std(), 
-                                    axis=1).values
-        self.model.fit(X)
-        self.fitted = True
+    
 
     
