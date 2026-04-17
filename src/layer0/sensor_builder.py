@@ -26,8 +26,18 @@ class SensorBuilder:
 
     @staticmethod
     def get_col(df, name):
-        """Finds a column name regardless of case (e.g., 'SPY' vs 'spy')."""
-        return next((c for c in df.columns if c.upper() == name.upper()), None)
+        # 1. Try exact match
+        match = next((c for c in df.columns if c.upper() == name.upper()), None)
+        if match: return match
+        
+        # 2. Try adding '=F' for Futures or '=X' for Forex if not found
+        for suffix in ["=F", "=X", "^", "DX-Y.NYB"]:
+            test_name = f"{name.upper()}{suffix}"
+            match = next((c for c in df.columns if c.upper() == test_name), None)
+            if match: return match
+            
+        return None
+
 
 
     def build_sensors(self, raw_prices):
