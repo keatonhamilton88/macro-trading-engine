@@ -44,7 +44,7 @@ class SensorBuilder:
         sensor_df = pd.DataFrame(index=raw_prices.index)
         
         # These contain underscores but are SINGLE-TICKER sensors
-        SINGLE_ASSETS = ["aud_jpy", "vix_vol", "vix_ratio", "usd_cnh", "eur_usd", "usd_jpy", "eur_chf", "spx_gex"]
+        SINGLE_ASSETS = ["aud_jpy", "vix_vol", "vix_ratio", "usd_cnh", "eur_usd", "usd_jpy", "eur_chf", "spx_gex", "zero_dte_vol"]
     
         for force_name, sensor_list in ForceBuilder.FORCE_MAP.items():
             for s_name in sensor_list:
