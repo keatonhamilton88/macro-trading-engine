@@ -64,7 +64,8 @@ class HMMRegimeEngine:
             index=[f"from_{i}" for i in range(self.n_states)]
         )
 
-
+    
+    @staticmethod
     def describe_states(features, states):
 
         df = features.copy()
@@ -92,7 +93,7 @@ class HMMRegimeEngine:
         return states.map(STATE_LABELS)
 
 
-
+    @staticmethod
     def apply_persistence_filter(states, window=3):
 
         filtered = states.copy()
