@@ -32,6 +32,8 @@ def run_trading_engine():
     print("--- 🛠 Building Sensors (Layer 0) ---")
     # This uses the dynamic importlib loop we built
     sensors = builder.build_sensors(prices)
+    # It patches any 'holes' so Layer 1 doesn't delete valid data
+    sensors = sensors.ffill().fillna(0)
     
     # -----------------------------------
     # 3. BUILD MACRO FORCES (Layer 1)
