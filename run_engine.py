@@ -26,27 +26,29 @@ def run_trading_engine():
     # Using 2020 to give plenty of 'warm-up' for the 252-day Z-scores
     prices = builder.download_prices(tickers, start="2020-01-01")
 
-
-    # -----------------------------------
-    # 1.5 DIAGNOSTIC: Find the "Data Killer"
-    # -----------------------------------
-    nan_report = sensors.isna().sum()
-    poisoned_sensors = nan_report[nan_report > (len(sensors) * 0.9)].index.tolist()
-    
-    if poisoned_sensors:
-        print(f"❌ These sensors are >90% NaN and killing your data: {poisoned_sensors}")
-    else:
-        print("✅ No poisoned sensors found. Alignment looks good.")
-
     
     # -----------------------------------
     # 2. BUILD SENSORS (Layer 0)
     # -----------------------------------
+    # --- 📥 Downloading Market Data ---
+    prices = builder.download_prices(tickers, start="2020-01-01")
+    
+    # --- 🛠 Building Sensors (Layer 0) ---
     print("--- 🛠 Building Sensors (Layer 0) ---")
-    # This uses the dynamic importlib loop we built
     sensors = builder.build_sensors(prices)
-    # It patches any 'holes' so Layer 1 doesn't delete valid data
-    sensors = sensors.ffill().fillna(0)
+    
+    # --- 1.5 DIAGNOSTIC ---
+    nan_report = sensors.isna().sum()
+    poisoned_sensors = nan_report[nan_report > (len(sensors) * 0.9)].index.tolist()
+    
+    if poisoned_sensors:
+        print(f"❌ These sensors are >90% NaN: {poisoned_sensors}")
+    else:
+        print("✅ No poisoned sensors found.")
+    
+    # Patches 'holes' for Layer 1
+    sensors = sensors.ffill().fillna(0) 
+
     
     # -----------------------------------
     # 3. BUILD MACRO FORCES (Layer 1)
