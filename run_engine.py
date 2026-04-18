@@ -25,6 +25,19 @@ def run_trading_engine():
     print("--- 📥 Downloading Market Data ---")
     # Using 2020 to give plenty of 'warm-up' for the 252-day Z-scores
     prices = builder.download_prices(tickers, start="2020-01-01")
+
+
+    # -----------------------------------
+    # 1.5 DIAGNOSTIC: Find the "Data Killer"
+    # -----------------------------------
+    nan_report = sensors.isna().sum()
+    poisoned_sensors = nan_report[nan_report > (len(sensors) * 0.9)].index.tolist()
+    
+    if poisoned_sensors:
+        print(f"❌ These sensors are >90% NaN and killing your data: {poisoned_sensors}")
+    else:
+        print("✅ No poisoned sensors found. Alignment looks good.")
+
     
     # -----------------------------------
     # 2. BUILD SENSORS (Layer 0)
