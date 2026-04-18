@@ -108,8 +108,8 @@ def run_trading_engine():
     print(f"\nFinal Regime Logic Label: {regime.iloc[-1]}")
     print(f"Regime Logic Confidence: {confidence.iloc[-1]:.2f}")
 
-    if __name__ == "__main__":
-        run_trading_engine()
+if __name__ == "__main__":
+    run_trading_engine()
 
 # import yfinance as yf
 # import pandas as pd
