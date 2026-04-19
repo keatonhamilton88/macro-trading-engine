@@ -87,5 +87,8 @@ class ForceBuilder:
             valid_sensors = [s for s in sensor_list if s in z_sensors.columns]
             if valid_sensors:
                 forces[force_name] = z_sensors[valid_sensors].mean(axis=1, skipna=True)
-    
+
+        print(f"DEBUG: processed z_sensors columns: {z_sensors.columns.tolist()}")
+        print(f"DEBUG: forces head: \n{forces.head()}")
+
         return forces.dropna(how='all').ffill().bfill()
