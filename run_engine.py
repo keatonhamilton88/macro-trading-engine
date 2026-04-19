@@ -26,6 +26,9 @@ def run_trading_engine():
     # Using 2020 to give plenty of 'warm-up' for the 252-day Z-scores
     prices = builder.download_prices(tickers, start="2020-01-01")
 
+    # DIAGNOSTIC: What did yfinance actually give us?
+    print(f"✅ Downloaded Columns: {prices.columns.tolist()[:10]}...") 
+
     
     # -----------------------------------
     # 2. BUILD SENSORS (Layer 0)
