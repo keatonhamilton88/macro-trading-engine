@@ -35,6 +35,8 @@ def run_trading_engine():
     # -----------------------------------
     # --- 📥 Downloading Market Data ---
     prices = builder.download_prices(tickers, start="2020-01-01")
+
+    prices['SPX_GEX_FLIP'] = 5000.0  # Mock flip level for Gamma calculation
     
     # --- 🛠 Building Sensors (Layer 0) ---
     print("--- 🛠 Building Sensors (Layer 0) ---")
