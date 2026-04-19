@@ -17,7 +17,7 @@ def zscore_sensor(series, lookback=252, is_return=True):
     # 3. Standardize
     z = (data - mean) / (std + 1e-8)
     
-    return z
+    return z.replace([np.inf, -np.inf], 0).fillna(0)
 
 
 
