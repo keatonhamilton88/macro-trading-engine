@@ -25,20 +25,40 @@ def run_trading_engine():
     print("--- 🛠 Building Sensors (Layer 0) ---")
     sensors = builder.build_sensors(prices)
     
-    # 4. Build Forces (Layer 1)
+        # -----------------------------------
+    # 3. BUILD MACRO FORCES (Layer 1)
+    # -----------------------------------
     print("--- 🌊 Aggregating Market Forces (Layer 1) ---")
-    # Calling the class method directly
-    print(f"DEBUG: Sensors column names: {sensors.columns.tolist()}")
-    forces = ForceBuilder.build_forces(sensors)
-    valid_date = get_last_valid_trading_date(forces)
-    if valid_date:
-        print(f"📅 Last Valid Trading Day: {valid_date.date()}")
-        # If you want to force the PCA to only care about real data:
-        forces = forces.loc[:valid_date]
     
-    if forces.empty or len(forces) < 100:
-        print(f"❌ Error: Insufficient Force Data. Count: {len(forces)}")
+    # DIAGNOSTIC: Ensure Layer 0 passed the right sensor names to Layer 1
+    print(f"DEBUG: Sensors received from Layer 0: {sensors.columns.tolist()}")
+    
+    # Apply Z-scores and Aggregate into 6 Macro Forces
+    forces = ForceBuilder.build_forces(sensors)
+    
+    # FIND LAST TRADING DAY:
+    # This prevents the PCA from crashing on weekend/future NaNs
+    valid_date = get_last_valid_trading_date(forces)
+    
+    if valid_date:
+        print(f"📅 Last Valid Trading Day Found: {valid_date.date()}")
+        # Slice the history to stop at the last real data point
+        forces = forces.loc[:valid_date]
+        
+        # DIAGNOSTIC: Show recent force values (should not be 0.0)
+        print("\nDEBUG: Recent Market Force Levels (Tail):")
+        print(forces.tail(3))
+    else:
+        print("❌ Error: No valid trading data found in the Force matrix.")
         return
+
+    # FINAL QUALITY GATE:
+    # PCA and HMM need enough history to calculate variance/transitions
+    if len(forces) < 252:
+        print(f"❌ Error: Insufficient history for Macro Engine. Count: {len(forces)}")
+        print("Need at least 252 days of non-zero data to warm up Slow Forces.")
+        return
+
 
     # 5. PCA Engine (Layer 1.5)
     # We pass 'forces' (the whole history) so it can find variance
