@@ -20,10 +20,5 @@ class YFinanceLoader:
             return None
         return clean_df.index[-1]
     
-        # In run_engine.py after build_forces:
-        valid_date = get_last_valid_trading_date(forces)
-        if valid_date:
-            print(f"📅 Last Valid Trading Day: {valid_date.date()}")
-            # If you want to force the PCA to only care about real data:
-            forces = forces.loc[:valid_date] 
+         
 
