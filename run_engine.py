@@ -88,10 +88,14 @@ def run_trading_engine():
     loadings = pca.get_loadings(forces.columns)
     print(loadings["PC1"].sort_values(ascending=False))
 
-    # Regime Logic Label
+    # Final Sanity Check Labels
     scores = RegimeEngine.compute_scores(forces)
     regime_label, confidence = RegimeEngine.classify(scores)
-    print(f"\nFinal Regime Logic Label: {regime_label.loc[valid_date]}")
+    
+    print(f"\nFinal Logic Label: {regime_label.loc[valid_date]}")
+    print(f"Logic Confidence: {confidence.loc[valid_date]:.2f}")
+    print("\n--- 🏁 ENGINE RUN COMPLETE ---")
+
 
 if __name__ == "__main__":
     run_trading_engine()
