@@ -3,7 +3,7 @@ from src.layer0.sensor_builder import SensorBuilder
 from src.layer1.force_builder import ForceBuilder
 from src.layer1.pca_engine import PCAEngine
 from src.data.data_loader import YFinanceLoader # Will swap to IBKRLoader later
-from src.data_loader import get_valid_last_trading_date
+from src.data.data_loader import get_valid_last_trading_date
 
 def run_trading_engine():
     # 1. Initialize
