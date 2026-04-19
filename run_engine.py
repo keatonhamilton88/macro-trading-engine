@@ -1,127 +1,96 @@
 import pandas as pd
-import yfinance as yf
 from src.layer0.sensor_builder import SensorBuilder
 from src.layer1.force_builder import ForceBuilder
 from src.layer1.pca_engine import PCAEngine
-from src.layer2.hmm_regime_engine import HMMRegimeEngine
-from src.layer2.regime_engine import RegimeEngine
+from src.data.data_loader import YFinanceLoader # Will swap to IBKRLoader later
 
 def run_trading_engine():
-    # -----------------------------------
-    # 1. SETUP & DATA DOWNLOAD
-    # -----------------------------------
+    # 1. Initialize
     builder = SensorBuilder()
     
-    # Complete Ticker List for all 6 Market Forces
+    # Define Tickers (Ensure these match your ForceBuilder.RAW_PRICE_TICKERS)
     tickers = [
-        "HG=F", "TIO=F", "GC=F", "CL=F", "SI=F",        # Inflation / Growth
-        "SOXX", "SPY", "ASHR", "EEM", "FXI",            # Growth / Equity
-        "AUDJPY=X", "TLT", "HYG",                       # Credit / Growth
-        "^VIX", "^VVIX", "^VIX3M",                      # Risk (Volatility)
-        "DX-Y.NYB", "USDCNH=X", "USDJPY=X", "EURUSD=X", # Dollar
-        "EURCHF=X", "ZN=F", "SR3=F", "ZT=F"             # Rates / Credit
+        "SPY", "TLT", "HYG", "GLD", "SLV", "^VIX", "DX-Y.NYB", 
+        "CL=F", "GC=F", "HG=F", "ZN=F", "ZT=F", "AUDJPY=X"
     ]
-
+    
+    # 2. Download Data (Need 1 year+ for Slow Z-scores)
     print("--- 📥 Downloading Market Data ---")
-    # Using 2020 to give plenty of 'warm-up' for the 252-day Z-scores
-    prices = builder.download_prices(tickers, start="2020-01-01")
-
-    # DIAGNOSTIC: What did yfinance actually give us?
-    print(f"✅ Verified Columns: {prices.columns.tolist()}")
-
+    prices = builder.download_prices(tickers, start="2023-01-01")
     
-    # -----------------------------------
-    # 2. BUILD SENSORS (Layer 0)
-    # -----------------------------------
-    # --- 📥 Downloading Market Data ---
-    prices = builder.download_prices(tickers, start="2020-01-01")
-
-    prices['SPX_GEX_FLIP'] = 5000.0  # Mock flip level for Gamma calculation
+    # IMPORTANT: Add the mock column for the Gamma Sensor to prevent NaNs
+    prices['SPX_GEX_FLIP'] = 5000.0 
     
-    # --- 🛠 Building Sensors (Layer 0) ---
+    # 3. Build Sensors (Layer 0)
     print("--- 🛠 Building Sensors (Layer 0) ---")
     sensors = builder.build_sensors(prices)
     
-    # --- 1.5 DIAGNOSTIC ---
-    nan_report = sensors.isna().sum()
-    poisoned_sensors = nan_report[nan_report > (len(sensors) * 0.9)].index.tolist()
-    
-    if poisoned_sensors:
-        print(f"❌ These sensors are >90% NaN: {poisoned_sensors}")
-    else:
-        print("✅ No poisoned sensors found.")
-    
-    # Patches 'holes' for Layer 1
-    sensors = sensors.ffill().fillna(0) 
-
-    
-    # -----------------------------------
-    # 3. BUILD MACRO FORCES (Layer 1)
-    # -----------------------------------
+    # 4. Build Forces (Layer 1)
     print("--- 🌊 Aggregating Market Forces (Layer 1) ---")
-    # This applies the 'Fast' and 'Slow' Z-scores
+    # Calling the class method directly
     forces = ForceBuilder.build_forces(sensors)
     
-    if forces.empty:
-        print("❌ Error: ForceBuilder returned empty data. Check your Z-score lookbacks.")
+    if forces.empty or len(forces) < 100:
+        print(f"❌ Error: Insufficient Force Data. Count: {len(forces)}")
         return
 
-    # -----------------------------------
-    # 4. PCA OVERLAY (Dimension Reduction)
-    # -----------------------------------
-    # 1. Pass the FULL history to PCA (don't use .tail(1) yet!)
+    # 5. PCA Engine (Layer 1.5)
+    # We pass 'forces' (the whole history) so it can find variance
     print("--- 🔬 Running PCA Engine ---")
     pca = PCAEngine(n_components=3)
-    pc_df = pca.fit_transform(forces)  # This needs 100+ rows to work well
+    pc_df = pca.fit_transform(forces) 
     
-    # 2. NOW get the most recent regime/signal
-    latest_pca_signal = pc_df.tail(1)
-    latest_forces = forces.tail(1)
+    # 6. Extract Latest Signal for Reporting
+    # Use your new Data Loader function to find the last 'real' data point
+    from src.data.data_loader import get_last_valid_trading_date
+    valid_date = get_last_valid_trading_date(forces)
     
-    print(f"✅ PCA successful. PC1 (Beta): {pc_df['PC1'].iloc[-1]:.2f}")
+    if valid_date:
+        print(f"📅 Report for Date: {valid_date.date()}")
+        f_today = forces.loc[valid_date]
+        p_today = pc_df.loc[valid_date]
+        
+        print(f"✅ PCA Success | PC1 (Beta): {p_today['PC1']:.2f}")
+        print(f"Current Forces: Growth: {f_today['growth']:.2f} | Risk: {f_today['risk']:.2f}")
+    else:
+        print("❌ No valid trading data found in the current window.")
 
-    
-    # -----------------------------------
-    # 5. HMM REGIME DETECTION (Layer 2)
-    # -----------------------------------
-    print("--- 🧠 Detecting Market Regimes (Layer 2) ---")
-    combined_features = pd.concat([forces, pc_df], axis=1).dropna()
-    
-    hmm = HMMRegimeEngine(n_states=4)
-    hmm.fit(combined_features)
-    
-    current_state = hmm.predict_states(combined_features).iloc[-1]
-    probs = hmm.predict_probabilities(combined_features).iloc[-1]
-    
-    # -----------------------------------
-    # 6. OUTPUT & DIAGNOSTICS
-    # -----------------------------------
-    print("\n" + "="*30)
-    print(f"🚀 ENGINE STATUS: OPERATIONAL")
-    print(f"📍 CURRENT STATE: {current_state}")
-    print(f"📊 CONFIDENCE: {probs.max():.2%}")
-    print("="*30)
+        if valid_date:
+        print(f"📅 Report for Date: {valid_date.date()}")
+        
+        # --- 🧠 Detecting Market Regimes (Layer 2) ---
+        print("--- 🧠 Detecting Market Regimes (Layer 2) ---")
+        combined_features = pd.concat([forces, pc_df], axis=1).dropna()
+        
+        hmm = HMMRegimeEngine(n_states=4)
+        hmm.fit(combined_features)
+        
+        # Use the valid_date to ensure we aren't looking at "future" empty rows
+        current_state = hmm.predict_states(combined_features).loc[valid_date]
+        probs = hmm.predict_probabilities(combined_features).loc[valid_date]
+        
+        # --- 6. OUTPUT & DIAGNOSTICS ---
+        print("\n" + "="*30)
+        print(f"🚀 ENGINE STATUS: OPERATIONAL")
+        print(f"📍 CURRENT STATE: {current_state}")
+        print(f"📊 CONFIDENCE: {probs.max():.2%}")
+        print("="*30)
 
-    # Transition Matrix (How sticky is the current regime?)
-    print("\nTransition Matrix (Stickiness):")
-    print(hmm.get_transition_matrix().round(2))
+        # ... (Transition Matrix and Loadings code here) ...
 
-    # PCA Loadings (What is driving the market right now?)
-    print("\nTop PC1 Drivers (Market Force):")
-    loadings = pca.get_loadings(forces.columns)
-    print(loadings["PC1"].sort_values(ascending=False))
+        # --- 7. REGIME CLASSIFICATION (The Final Label) ---
+        scores = RegimeEngine.compute_scores(forces)
+        regime, confidence = RegimeEngine.classify(scores)
+        
+        print(f"\nFinal Regime Logic Label: {regime.loc[valid_date]}")
+        print(f"Regime Logic Confidence: {confidence.loc[valid_date]:.2f}")
 
-    # -----------------------------------
-    # 7. REGIME CLASSIFICATION (The Final Label)
-    # -----------------------------------
-    scores = RegimeEngine.compute_scores(forces)
-    regime, confidence = RegimeEngine.classify(scores)
-    
-    print(f"\nFinal Regime Logic Label: {regime.iloc[-1]}")
-    print(f"Regime Logic Confidence: {confidence.iloc[-1]:.2f}")
+    else:
+        print("❌ No valid trading data found in the current window.")
 
 if __name__ == "__main__":
     run_trading_engine()
+
 
 # import yfinance as yf
 # import pandas as pd
