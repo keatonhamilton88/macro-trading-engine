@@ -30,6 +30,11 @@ def run_trading_engine():
     # Calling the class method directly
     print(f"DEBUG: Sensors column names: {sensors.columns.tolist()}")
     forces = ForceBuilder.build_forces(sensors)
+    valid_date = get_last_valid_trading_date(forces)
+    if valid_date:
+        print(f"📅 Last Valid Trading Day: {valid_date.date()}")
+        # If you want to force the PCA to only care about real data:
+        forces = forces.loc[:valid_date]
     
     if forces.empty or len(forces) < 100:
         print(f"❌ Error: Insufficient Force Data. Count: {len(forces)}")
