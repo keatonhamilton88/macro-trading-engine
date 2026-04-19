@@ -4,21 +4,19 @@ import importlib
 from src.layer1.force_builder import ForceBuilder # Import your blueprint
 
 class SensorBuilder:
+    # Update in src/layer0/sensor_builder.py
     def download_prices(self, tickers, start="2020-01-01"):
-        # 1. Force the most recent yfinance version to drop the multi-index if possible
         data = yf.download(tickers, start=start, multi_level_index=False)
         
-        # 2. Extract 'Close' - if MultiIndex persists, flatten it manually
+        # Force alignment: keep only 'Close' and rename columns to just the Ticker name
         if isinstance(data.columns, pd.MultiIndex):
-            # We only want the 'Ticker' level from the 'Close' group
-            if 'Close' in data.columns.levels[0]:
-                data = data['Close']
-            else:
-                # Fallback: flatten (Price, Ticker) to just (Ticker)
-                data.columns = data.columns.get_level_values(1)
-                
-        # 3. Final alignment and gap filling
+            # Select the 'Close' level and drop the price type header
+            data = data.xs('Close', level=0, axis=1)
+        
+        # Ensure column names are clean strings for the get_col method
+        data.columns = [str(c).upper() for c in data.columns]
         return data.ffill().dropna()
+
 
 
     @staticmethod
