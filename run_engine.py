@@ -69,10 +69,17 @@ def run_trading_engine():
     # -----------------------------------
     # 4. PCA OVERLAY (Dimension Reduction)
     # -----------------------------------
+    # 1. Pass the FULL history to PCA (don't use .tail(1) yet!)
     print("--- 🔬 Running PCA Engine ---")
     pca = PCAEngine(n_components=3)
-    # PCA runs on the 6 'Forces', not the 27 raw sensors
-    pc_df = pca.fit_transform(forces)
+    pc_df = pca.fit_transform(forces)  # This needs 100+ rows to work well
+    
+    # 2. NOW get the most recent regime/signal
+    latest_pca_signal = pc_df.tail(1)
+    latest_forces = forces.tail(1)
+    
+    print(f"✅ PCA successful. PC1 (Beta): {pc_df['PC1'].iloc[-1]:.2f}")
+
     
     # -----------------------------------
     # 5. HMM REGIME DETECTION (Layer 2)
