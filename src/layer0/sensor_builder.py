@@ -23,21 +23,18 @@ class SensorBuilder:
 
     @staticmethod
     def get_col(df, name):
-        # This is the "Translator" that connects your Force Map to yfinance
         cols = [str(c).upper() for c in df.columns]
-        search_target = name.upper()
-    
-        # Exact Match
-        if search_target in cols:
-            return df.columns[cols.index(search_target)]
-    
-        # Smart Suffix Match (cl -> CL=F, vix -> ^VIX)
-        suffixes = ["=F", "=X", "^", "DX-Y.NYB"]
-        for s in suffixes:
-            test = f"{search_target}{s}" if s != "^" else f"^{search_target}"
-            if test in cols:
-                return df.columns[cols.index(test)]
-    
+        target = name.upper()
+        
+        # Check exact match
+        if target in cols:
+            return df.columns[cols.index(target)]
+        
+        # Check yfinance specific variations
+        variations = [f"{target}=F", f"{target}=X", f"^{target}", "DX-Y.NYB"]
+        for v in variations:
+            if v in cols:
+                return df.columns[cols.index(v)]
         return None
 
 
