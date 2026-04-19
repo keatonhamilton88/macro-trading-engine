@@ -93,11 +93,6 @@ def run_trading_engine():
     regime_label, confidence = RegimeEngine.classify(scores)
     print(f"\nFinal Regime Logic Label: {regime_label.loc[valid_date]}")
 
-    print(f"Regime Logic Confidence: {confidence.loc[valid_date]:.2f}")
-
-    else:
-        print("❌ No valid trading data found in the current window.")
-
 if __name__ == "__main__":
     run_trading_engine()
 
