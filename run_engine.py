@@ -16,7 +16,7 @@ def run_trading_engine():
     
     # 2. Download Data (Need 1 year+ for Slow Z-scores)
     print("--- 📥 Downloading Market Data ---")
-    prices = builder.download_prices(tickers, start="2023-01-01")
+    prices = builder.download_prices(tickers, start="2022-01-01")
     
     # IMPORTANT: Add the mock column for the Gamma Sensor to prevent NaNs
     prices['SPX_GEX_FLIP'] = 5000.0 
