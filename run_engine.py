@@ -35,79 +35,65 @@ def run_trading_engine():
     print("--- 🌊 Aggregating Market Forces (Layer 1) ---")
     forces = ForceBuilder.build_forces(sensors)
     
-    # Check the TAIL to see real numbers
-    print(f"DEBUG: Recent Market Forces (Tail):\n{forces.tail()}")
-
-    # This is the line causing the error - ensure the import at the top is correct!
+    # 1. Determine the valid trading date ONCE
     valid_date = get_last_valid_trading_date(forces)
     
-    if valid_date:
-        print(f"📅 Last Valid Trading Day: {valid_date.date()}")
-        forces = forces.loc[:valid_date]
-    else:
+    if not valid_date:
         print("❌ Error: No valid trading data found.")
         return
 
-    
-    # FINAL QUALITY GATE:
-    # PCA and HMM need enough history to calculate variance/transitions
+    # 2. Slice forces to the valid date and check history length
+    forces = forces.loc[:valid_date]
+    print(f"📅 Last Valid Trading Day: {valid_date.date()}")
+    print(f"DEBUG: Recent Market Forces (Tail):\n{forces.tail(3)}")
+
     if len(forces) < 252:
-        print(f"❌ Error: Insufficient history for Macro Engine. Count: {len(forces)}")
-        print("Need at least 252 days of non-zero data to warm up Slow Forces.")
+        print(f"❌ Error: Insufficient history ({len(forces)} days). Need 252 for warm-up.")
         return
 
-
-    # 5. PCA Engine (Layer 1.5)
-    # We pass 'forces' (the whole history) so it can find variance
+    # -----------------------------------
+    # 4. PCA Engine (Layer 1.5)
+    # -----------------------------------
     print("--- 🔬 Running PCA Engine ---")
     pca = PCAEngine(n_components=3)
     pc_df = pca.fit_transform(forces) 
     
-    # 6. Extract Latest Signal for Reporting
-    # Use your new Data Loader function to find the last 'real' data point
-    from src.data.data_loader import get_last_valid_trading_date
-    valid_date = get_last_valid_trading_date(forces)
+    # -----------------------------------
+    # 5. HMM REGIME DETECTION (Layer 2)
+    # -----------------------------------
+    print("--- 🧠 Detecting Market Regimes (Layer 2) ---")
+    combined_features = pd.concat([forces, pc_df], axis=1).dropna()
     
-    if valid_date:
-        print(f"📅 Report for Date: {valid_date.date()}")
-        f_today = forces.loc[valid_date]
-        p_today = pc_df.loc[valid_date]
-        
-        print(f"✅ PCA Success | PC1 (Beta): {p_today['PC1']:.2f}")
-        print(f"Current Forces: Growth: {f_today['growth']:.2f} | Risk: {f_today['risk']:.2f}")
-    else:
-        print("❌ No valid trading data found in the current window.")
+    hmm = HMMRegimeEngine(n_states=4)
+    hmm.fit(combined_features)
+    
+    # Use valid_date for consistent lookup
+    current_state = hmm.predict_states(combined_features).loc[valid_date]
+    probs = hmm.predict_probabilities(combined_features).loc[valid_date]
+    
+    # -----------------------------------
+    # 6. OUTPUT & DIAGNOSTICS
+    # -----------------------------------
+    print("\n" + "="*30)
+    print(f"🚀 ENGINE STATUS: OPERATIONAL")
+    print(f"📍 CURRENT STATE: {current_state}")
+    print(f"📊 CONFIDENCE: {probs.max():.2%}")
+    print("="*30)
 
-    if valid_date:
-        print(f"📅 Report for Date: {valid_date.date()}")
+    # PC1 Driver Analysis
+    p_today = pc_df.loc[valid_date]
+    print(f"\n✅ PCA Success | PC1 (Beta): {p_today['PC1']:.2f}")
+    
+    print("\nTop PC1 Drivers (Market Force):")
+    loadings = pca.get_loadings(forces.columns)
+    print(loadings["PC1"].sort_values(ascending=False))
 
-        # HMM REGIME DETECTION 
-        # --- 🧠 Detecting Market Regimes (Layer 2) ---
-        print("--- 🧠 Detecting Market Regimes (Layer 2) ---")
-        combined_features = pd.concat([forces, pc_df], axis=1).dropna().copy()
-        
-        hmm = HMMRegimeEngine(n_states=4)
-        hmm.fit(combined_features)
-        
-        # Use the valid_date to ensure we aren't looking at "future" empty rows
-        current_state = hmm.predict_states(combined_features).loc[valid_date]
-        probs = hmm.predict_probabilities(combined_features).loc[valid_date]
-        
-        # --- 6. OUTPUT & DIAGNOSTICS ---
-        print("\n" + "="*30)
-        print(f"🚀 ENGINE STATUS: OPERATIONAL")
-        print(f"📍 CURRENT STATE: {current_state}")
-        print(f"📊 CONFIDENCE: {probs.max():.2%}")
-        print("="*30)
+    # Regime Logic Label
+    scores = RegimeEngine.compute_scores(forces)
+    regime_label, confidence = RegimeEngine.classify(scores)
+    print(f"\nFinal Regime Logic Label: {regime_label.loc[valid_date]}")
 
-        # ... (Transition Matrix and Loadings code here) ...
-
-        # --- 7. REGIME CLASSIFICATION (The Final Label) ---
-        scores = RegimeEngine.compute_scores(forces)
-        regime, confidence = RegimeEngine.classify(scores)
-        
-        print(f"\nFinal Regime Logic Label: {regime.loc[valid_date]}")
-        print(f"Regime Logic Confidence: {confidence.loc[valid_date]:.2f}")
+    print(f"Regime Logic Confidence: {confidence.loc[valid_date]:.2f}")
 
     else:
         print("❌ No valid trading data found in the current window.")
