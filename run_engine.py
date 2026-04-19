@@ -28,6 +28,7 @@ def run_trading_engine():
     # 4. Build Forces (Layer 1)
     print("--- 🌊 Aggregating Market Forces (Layer 1) ---")
     # Calling the class method directly
+    print(f"DEBUG: Sensors column names: {sensors.columns.tolist()}")
     forces = ForceBuilder.build_forces(sensors)
     
     if forces.empty or len(forces) < 100:
