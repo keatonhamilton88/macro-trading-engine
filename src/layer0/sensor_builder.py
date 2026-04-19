@@ -5,22 +5,21 @@ from src.layer1.force_builder import ForceBuilder # Import your blueprint
 
 class SensorBuilder:
     def download_prices(self, tickers, start="2020-01-01"):
-        # 1. Download raw data
-        data = yf.download(tickers, start=start, group_by='column')
+        # 1. Force the most recent yfinance version to drop the multi-index if possible
+        data = yf.download(tickers, start=start, multi_level_index=False)
         
-        # 2. Extract only Close prices
-        # This handles the most common yfinance MultiIndex structures
+        # 2. Extract 'Close' - if MultiIndex persists, flatten it manually
         if isinstance(data.columns, pd.MultiIndex):
+            # We only want the 'Ticker' level from the 'Close' group
             if 'Close' in data.columns.levels[0]:
-                prices = data['Close']
+                data = data['Close']
             else:
-                # Fallback if 'Close' is at a different level
-                prices = data.xs('Close', axis=1, level=0, drop_level=True)
-        else:
-            prices = data
-        
-        # 3. Align and fill gaps (Holidays/Timezones)
-        return prices.ffill().dropna()
+                # Fallback: flatten (Price, Ticker) to just (Ticker)
+                data.columns = data.columns.get_level_values(1)
+                
+        # 3. Final alignment and gap filling
+        return data.ffill().dropna()
+
 
     @staticmethod
     def get_col(df, name):
