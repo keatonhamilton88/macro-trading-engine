@@ -27,7 +27,7 @@ def run_trading_engine():
     prices = builder.download_prices(tickers, start="2020-01-01")
 
     # DIAGNOSTIC: What did yfinance actually give us?
-    print(f"✅ Downloaded Columns: {prices.columns.tolist()[:10]}...") 
+    print(f"✅ Verified Columns: {prices.columns.tolist()}")
 
     
     # -----------------------------------
