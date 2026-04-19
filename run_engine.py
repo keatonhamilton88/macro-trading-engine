@@ -21,38 +21,34 @@ def run_trading_engine():
     
     # IMPORTANT: Add the mock column for the Gamma Sensor to prevent NaNs
     prices['SPX_GEX_FLIP'] = 5000.0 
+
     
     # 3. Build Sensors (Layer 0)
     print("--- 🛠 Building Sensors (Layer 0) ---")
     sensors = builder.build_sensors(prices)
+
+    
     
         # -----------------------------------
     # 3. BUILD MACRO FORCES (Layer 1)
     # -----------------------------------
     print("--- 🌊 Aggregating Market Forces (Layer 1) ---")
-    
-    # DIAGNOSTIC: Ensure Layer 0 passed the right sensor names to Layer 1
-    print(f"DEBUG: Sensors received from Layer 0: {sensors.columns.tolist()}")
-    
-    # Apply Z-scores and Aggregate into 6 Macro Forces
     forces = ForceBuilder.build_forces(sensors)
     
-    # FIND LAST TRADING DAY:
-    # This prevents the PCA from crashing on weekend/future NaNs
+    # Check the TAIL to see real numbers
+    print(f"DEBUG: Recent Market Forces (Tail):\n{forces.tail()}")
+
+    # This is the line causing the error - ensure the import at the top is correct!
     valid_date = get_last_valid_trading_date(forces)
     
     if valid_date:
-        print(f"📅 Last Valid Trading Day Found: {valid_date.date()}")
-        # Slice the history to stop at the last real data point
+        print(f"📅 Last Valid Trading Day: {valid_date.date()}")
         forces = forces.loc[:valid_date]
-        
-        # DIAGNOSTIC: Show recent force values (should not be 0.0)
-        print("\nDEBUG: Recent Market Force Levels (Tail):")
-        print(forces.tail(3))
     else:
-        print("❌ Error: No valid trading data found in the Force matrix.")
+        print("❌ Error: No valid trading data found.")
         return
 
+    
     # FINAL QUALITY GATE:
     # PCA and HMM need enough history to calculate variance/transitions
     if len(forces) < 252:
