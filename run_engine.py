@@ -55,12 +55,13 @@ def run_trading_engine():
     else:
         print("❌ No valid trading data found in the current window.")
 
-        if valid_date:
+    if valid_date:
         print(f"📅 Report for Date: {valid_date.date()}")
-        
+
+        # HMM REGIME DETECTION 
         # --- 🧠 Detecting Market Regimes (Layer 2) ---
         print("--- 🧠 Detecting Market Regimes (Layer 2) ---")
-        combined_features = pd.concat([forces, pc_df], axis=1).dropna()
+        combined_features = pd.concat([forces, pc_df], axis=1).dropna().copy()
         
         hmm = HMMRegimeEngine(n_states=4)
         hmm.fit(combined_features)
