@@ -90,6 +90,9 @@ def run_trading_engine():
     loadings = pca.get_loadings(forces.columns)
     print(loadings["PC1"].sort_values(ascending=False))
 
+    # -----------------------------------
+    # 7. Regime Classification (Layer 3)
+    # -----------------------------------
     # Final Sanity Check Labels
     scores = RegimeEngine.compute_scores(forces)
     regime_label, confidence = RegimeEngine.classify(scores)
@@ -97,6 +100,25 @@ def run_trading_engine():
     print(f"\nFinal Logic Label: {regime_label.loc[valid_date]}")
     print(f"Logic Confidence: {confidence.loc[valid_date]:.2f}")
     print("\n--- 🏁 ENGINE RUN COMPLETE ---")
+
+    # -----------------------------------
+    # 8. EXECUTION PROPOSAL (Layer 3-7)
+    # -----------------------------------
+    from src.engine.execution_mapper import ExecutionMapper
+    
+    # We take the forces from the valid trading day
+    f_today = forces.loc[valid_date]
+    trade_proposal = ExecutionMapper.get_strategy_proposal(regime.loc[valid_date], f_today)
+
+        print("\n" + "🎯 STRATEGY PROPOSAL " + "="*10)
+    if not trade_proposal:
+        print("Neutral - No strategy meets fitness threshold.")
+    else:
+        for strat, details in trade_proposal.items():
+            print(f"▶ {strat.upper()} (Fit: {details['confidence']})")
+            if details['long']: print(f"   L: {details['long']}")
+            if details['short']: print(f"   S: {details['short']}")
+
 
 
 if __name__ == "__main__":
