@@ -2,7 +2,8 @@ import pandas as pd
 from src.layer0.sensor_builder import SensorBuilder
 from src.layer1.force_builder import ForceBuilder
 from src.layer1.pca_engine import PCAEngine
-from src.data.data_loader import YFinanceLoader # Will swap to IBKRLoader later
+from ib_insync import IB, util
+from src.data.ibkr_connector import IBKRConnector
 from src.data.data_loader import get_last_valid_trading_date
 from src.layer2.hmm_regime_engine import HMMRegimeEngine
 from src.layer2.regime_engine import RegimeEngine
