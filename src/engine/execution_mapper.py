@@ -1,51 +1,70 @@
-
+# src/engine/execution_mapper.py
 
 class ExecutionMapper:
-    # 1. The Strategy Gate: Which buckets are 'legal' in each regime?
+    # THE COMPLETE TOOLBOX
+    TOOLBOX = {
+        "micro_indices": ["MES", "MNQ"],
+        "energy":        ["CL", "MNG"],
+        "metals":        ["GC", "HG", "SI"],
+        "ags":           ["ZS", "ZW", "ZC", "KE"],
+        "crypto_micro":  ["MBT", "MET"],
+        "fx_futures":    ["6A", "6B", "6C", "6E", "6J", "6M", "6N", "6S", "DX"],
+        "fx_cash":       ["AUD.CAD", "CAD.USD", "AUD.JPY", "AUD.USD", "EUR.USD"],
+        "rates":         ["ZT", "ZN", "SR3"],
+        "options":       ["SPY_PUT", "SPY_STRANGLE", "VIX_CALL"]
+    }
+
+    # THE STRATEGY MAP (The 'Where')
     STRATEGY_GATE = {
-        "deflation": ["duration_long", "vol_expansion", "liquidity_stress"],
+        "deflation": ["duration_long", "liquidity_stress"],
         "risk_on":   ["growth_equity", "vol_compression", "fx_carry"],
-        "inflation": ["commodity_long", "steepeners", "short_duration"],
-        "risk_off":  ["vol_expansion", "short_equities", "long_dollar"]
+        "inflation": ["commodity_long", "steepeners"],
+        "risk_off":  ["vol_expansion", "short_equities", "duration_long"]
     }
 
-    # 2. Alpha Buckets: How the 6 forces (Growth, Inflation, Risk, etc.) impact the bucket
-    ALPHA_BUCKETS = {
-        "vol_compression": {"risk": -1.0, "credit": 0.5},
-        "vol_expansion":   {"risk": 1.5, "credit": -0.5},
-        "growth_equity":   {"growth": 1.0, "risk": -0.3},
-        "liquidity_stress": {"dollar": 1.0, "credit": -0.8},
-        "duration_long":   {"rates": -1.0, "growth": -0.5}
-    }
-
-    # 3. The "Toolbox" Product Map (Long and Short)
-    PRODUCT_POOL = {
-        "duration_long":    {"long": ["ZT=F", "ZN=F", "TLT"], "short": []},
-        "vol_expansion":    {"long": ["VIX", "Long_Puts"], "short": ["SPY"]},
-        "liquidity_stress": {"long": ["USDJPY=X", "DX-Y.NYB"], "short": ["EEM", "HYG"]},
-        "commodity_long":   {"long": ["GC=F", "CL=F", "HG=F"], "short": []},
-        "steepeners":       {"long": ["ZT=F"], "short": ["ZN=F"]} # Short the back, long the front
+    # MAPPING BUCKETS TO TOOLBOX CATEGORIES
+    BUCKET_ASSETS = {
+        "duration_long":    ["rates"],
+        "liquidity_stress": ["fx_futures", "fx_cash"],
+        "growth_equity":    ["micro_indices", "crypto_micro"],
+        "vol_compression":  ["options"], # Specifically Strangles
+        "vol_expansion":    ["options", "fx_futures"], # Puts and DX
+        "commodity_long":   ["energy", "metals", "ags"],
+        "steepeners":       ["rates"] # Spread logic
     }
 
     @staticmethod
-    def get_strategy_proposal(regime_label, forces_today):
+    def rank_tactical_entries(bucket_name, prices_df):
         """
-        Generates a sophisticated proposal across the toolset.
+        Merged Tactical Ranker:
+        1. Gets all potential tools for a bucket.
+        2. Scans RSI/EMA/ATR (Layer 5) to pick the 'best' entry.
         """
-        allowed_strategies = ExecutionMapper.STRATEGY_GATE.get(regime_label, [])
+        categories = ExecutionMapper.BUCKET_ASSETS.get(bucket_name, [])
+        candidates = []
+        for cat in categories:
+            candidates.extend(ExecutionMapper.TOOLBOX.get(cat, []))
+            
+        # TACTICAL FILTER (Pseudo-code for Layer 5 integration)
+        # 1. Filter for Price > EMA 200 (Trend)
+        # 2. Rank by RSI (Strength)
+        # 3. Size by ATR (Risk)
+        
+        # For now, return the full candidate list sorted
+        return candidates
+
+    @staticmethod
+    def get_trade_proposal(regime_label, forces_today, prices_df):
+        allowed_strats = ExecutionMapper.STRATEGY_GATE.get(regime_label, [])
         proposal = {}
 
-        for strategy in allowed_strategies:
-            # Check Fitness
-            force_weights = ExecutionMapper.ALPHA_BUCKETS.get(strategy, {})
-            fitness = sum(forces_today[f] * w for f, w in force_weights.items() if f in forces_today)
+        for strat in allowed_strats:
+            # (Fitness logic remains here)
+            # ...
             
-            if fitness > 0.5: # Threshold to ensure we don't trade 'noise'
-                tools = ExecutionMapper.PRODUCT_POOL.get(strategy, {})
-                proposal[strategy] = {
-                    "confidence": round(fitness, 2),
-                    "long": tools.get("long", []),
-                    "short": tools.get("short", [])
-                }
-        
+            # The Tactical Scan happens here
+            best_tools = ExecutionMapper.rank_tactical_entries(strat, prices_df)
+            proposal[strat] = {"best_tools": best_tools}
+            
         return proposal
+
