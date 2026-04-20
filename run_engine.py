@@ -1,61 +1,74 @@
 import pandas as pd
+import numpy as np
+from ib_insync import util
+
+# Core Layer Imports
 from src.layer0.sensor_builder import SensorBuilder
 from src.layer1.force_builder import ForceBuilder
 from src.layer1.pca_engine import PCAEngine
-from ib_insync import IB, util
-from src.data.ibkr_connector import IBKRConnector
-from src.data.data_loader import get_last_valid_trading_date
 from src.layer2.hmm_regime_engine import HMMRegimeEngine
 from src.layer2.regime_engine import RegimeEngine
 
+# Data and Engine Imports
+from src.data.ibkr_connector import IBKRConnector
+from src.data.data_loader import get_last_valid_trading_date
+from src.engine.execution_mapper import ExecutionMapper
+
 def run_trading_engine():
-    # 1. Initialize
-    builder = SensorBuilder()
+    # -----------------------------------
+    # 1. INITIALIZE IBKR CONNECTION
+    # -----------------------------------
+    # Ensure TWS or IB Gateway is running on port 7497
+    connector = IBKRConnector(host='127.0.0.1', port=7497, client_id=1)
+    try:
+        connector.connect()
+    except Exception as e:
+        print(f"❌ Connection Failed: {e}. Is TWS/Gateway running?")
+        return
+
+    # -----------------------------------
+    # 2. DATA INGESTION (Layers 0-1)
+    # -----------------------------------
+    # The connector handles the Toolbox tickers and 2-year lookback
+    builder = SensorBuilder(ib_connector=connector)
     
-    # Define Tickers (Ensure these match your ForceBuilder.RAW_PRICE_TICKERS)
-    tickers = [
-        "SPY", "TLT", "HYG", "GLD", "SLV", "^VIX", "DX-Y.NYB", 
-        "CL=F", "GC=F", "HG=F", "ZN=F", "ZT=F", "AUDJPY=X"
-    ]
+    print("--- 📥 Downloading IBKR Institutional Data ---")
+    prices = builder.download_prices() 
     
-    # 2. Download Data (Need 1 year+ for Slow Z-scores)
-    print("--- 📥 Downloading Market Data ---")
-    prices = builder.download_prices(tickers, start="2022-01-01")
-    
-    # IMPORTANT: Add the mock column for the Gamma Sensor to prevent NaNs
+    # Add the mock Gamma Flip column (until you integrate a live GEX feed)
     prices['SPX_GEX_FLIP'] = 5000.0 
 
-    
     # 3. Build Sensors (Layer 0)
     print("--- 🛠 Building Sensors (Layer 0) ---")
     sensors = builder.build_sensors(prices)
+    # Patch any gaps for the math models
+    sensors = sensors.ffill().fillna(0)
 
-    
-    
-        # -----------------------------------
+    # -----------------------------------
     # 3. BUILD MACRO FORCES (Layer 1)
     # -----------------------------------
     print("--- 🌊 Aggregating Market Forces (Layer 1) ---")
     forces = ForceBuilder.build_forces(sensors)
     
-    # 1. Determine the valid trading date ONCE
+    # 1. Determine the valid trading date
     valid_date = get_last_valid_trading_date(forces)
     
     if not valid_date:
         print("❌ Error: No valid trading data found.")
+        connector.ib.disconnect()
         return
 
-    # 2. Slice forces to the valid date and check history length
+    # 2. Slice forces to the valid date and check history
     forces = forces.loc[:valid_date]
     print(f"📅 Last Valid Trading Day: {valid_date.date()}")
-    print(f"DEBUG: Recent Market Forces (Tail):\n{forces.tail(3)}")
 
     if len(forces) < 252:
         print(f"❌ Error: Insufficient history ({len(forces)} days). Need 252 for warm-up.")
+        connector.ib.disconnect()
         return
 
     # -----------------------------------
-    # 4. PCA Engine (Layer 1.5)
+    # 4. PCA ENGINE (Layer 1.5)
     # -----------------------------------
     print("--- 🔬 Running PCA Engine ---")
     pca = PCAEngine(n_components=3)
@@ -70,7 +83,7 @@ def run_trading_engine():
     hmm = HMMRegimeEngine(n_states=4)
     hmm.fit(combined_features)
     
-    # Use valid_date for consistent lookup
+    # Extract current state and probabilities
     current_state = hmm.predict_states(combined_features).loc[valid_date]
     probs = hmm.predict_probabilities(combined_features).loc[valid_date]
     
@@ -79,95 +92,45 @@ def run_trading_engine():
     # -----------------------------------
     print("\n" + "="*30)
     print(f"🚀 ENGINE STATUS: OPERATIONAL")
-    print(f"📍 CURRENT STATE: {current_state}")
+    print(f"📍 HMM STATE: {current_state}")
     print(f"📊 CONFIDENCE: {probs.max():.2%}")
     print("="*30)
 
-    # PC1 Driver Analysis
     p_today = pc_df.loc[valid_date]
     print(f"\n✅ PCA Success | PC1 (Beta): {p_today['PC1']:.2f}")
     
-    print("\nTop PC1 Drivers (Market Force):")
-    loadings = pca.get_loadings(forces.columns)
-    print(loadings["PC1"].sort_values(ascending=False))
-
     # -----------------------------------
-    # 7. Regime Classification (Layer 3)
+    # 7. REGIME CLASSIFICATION (The Logic Label)
     # -----------------------------------
-    # Final Sanity Check Labels
     scores = RegimeEngine.compute_scores(forces)
     regime_label, confidence = RegimeEngine.classify(scores)
+    current_regime = regime_label.loc[valid_date]
     
-    print(f"\nFinal Logic Label: {regime_label.loc[valid_date]}")
+    print(f"\nFinal Logic Label: {current_regime}")
     print(f"Logic Confidence: {confidence.loc[valid_date]:.2f}")
-    print("\n--- 🏁 ENGINE RUN COMPLETE ---")
 
     # -----------------------------------
     # 8. EXECUTION PROPOSAL (Layer 3-7)
     # -----------------------------------
-    from src.engine.execution_mapper import ExecutionMapper
+    print("\n" + "🎯 STRATEGY PROPOSAL " + "="*10)
     
-    # We take the forces from the valid trading day
+    # Use valid date forces for the proposal
     f_today = forces.loc[valid_date]
-    trade_proposal = ExecutionMapper.get_strategy_proposal(regime.loc[valid_date], f_today)
+    trade_proposal = ExecutionMapper.get_trade_proposal(current_regime, f_today, prices)
 
-        print("\n" + "🎯 STRATEGY PROPOSAL " + "="*10)
     if not trade_proposal:
         print("Neutral - No strategy meets fitness threshold.")
     else:
         for strat, details in trade_proposal.items():
-            print(f"▶ {strat.upper()} (Fit: {details['confidence']})")
-            if details['long']: print(f"   L: {details['long']}")
-            if details['short']: print(f"   S: {details['short']}")
+            print(f"▶ {strat.upper()} (Fit: {details.get('fit', 'N/A')})")
+            # Using our merged 'best_tools' logic
+            print(f"   Recommended Tools: {details.get('best_tools', [])}")
 
-
+    print("\n--- 🏁 ENGINE RUN COMPLETE ---")
+    
+    # Disconnect when done
+    connector.ib.disconnect()
 
 if __name__ == "__main__":
     run_trading_engine()
-
-
-# import yfinance as yf
-# import pandas as pd
-# from sensors import vix, spx_gex, aud_jpy # Import your sensor functions
-# from ForceBuilder import ForceBuilder
-# from PCAEngine import PCAEngine
-# from HMMRegimeEngine import HMMRegimeEngine
-
-# def run_engine_test():
-#     # 1. DOWNLOAD DATA
-#     # Download at least 2 years for the 252-day PCA lookback
-#     tickers = ["SPY", "^VIX", "^VIX3M", "AUDJPY=X", "CL=F", "GC=F"]
-#     raw_data = yf.download(tickers, start="2022-01-01")['Close']
-#     raw_data = raw_data.ffill().dropna() 
-    
-#     # 2. BUILD SENSORS
-#     # Create a dataframe where each column is one of your sensor outputs
-#     sensor_df = pd.DataFrame(index=raw_data.index)
-#     sensor_df['vix'] = vix(raw_data)
-#     sensor_df['aud_jpy'] = aud_jpy(raw_data)
-#     # ... add the rest of your 20+ sensors here
-    
-#     # 3. BUILD FORCES (Layer 1)
-#     # This uses your Z-score logic and FORCE_MAP
-#     builder = ForceBuilder()
-#     forces = builder.build_forces(sensor_df)
-    
-#     # 4. PCA DIMENSION REDUCTION
-#     pca = PCAEngine(n_components=3)
-#     pc_signals = pca.fit_transform(forces) # Learning the weights
-    
-#     # 5. HMM REGIME DETECTION (Layer 2)
-#     hmm = HMMRegimeEngine(n_states=4)
-#     hmm.fit(pc_signals) # 'Learn' the market states
-    
-#     # 6. OUTPUT RESULTS
-#     current_state = hmm.predict_states(pc_signals).iloc[-1]
-#     probs = hmm.predict_probabilities(pc_signals).iloc[-1]
-    
-#     print(f"--- ENGINE TEST COMPLETE ---")
-#     print(f"Current Detected State: {current_state}")
-#     print(f"State Probabilities:\n{probs}")
-
-# if __name__ == "__main__":
-#     run_engine_test()
 
