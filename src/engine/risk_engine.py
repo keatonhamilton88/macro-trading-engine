@@ -30,7 +30,12 @@ class PositionSizer:
         quantity = int(np.floor(dollar_risk_cap / cost_per_contract))
         return max(0, quantity)
 
-    def check_margin_capacity(self, current_excess_liquidity, proposed_initial_margin):
-        """Prevents trade if it uses > 50% of remaining buffer."""
-        buffer_limit = current_excess_liquidity * 0.5
-        return proposed_initial_margin < buffer_limit
+    def validate_margin(self, initial_margin_required, current_excess_liq):
+        """
+        Ensures a single trade doesn't eat more than 15% of your total buffer.
+        In a $100k account, this keeps you from 'over-stacking' high-margin micros.
+        """
+        safety_threshold = current_excess_liq * 0.15
+        if initial_margin_required > safety_threshold:
+            return False # Trade is too 'expensive' for the current portfolio
+        return True
