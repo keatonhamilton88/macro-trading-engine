@@ -29,3 +29,8 @@ class PositionSizer:
         # 4. Quantity (floor to stay under risk cap)
         quantity = int(np.floor(dollar_risk_cap / cost_per_contract))
         return max(0, quantity)
+
+    def check_margin_capacity(self, current_excess_liquidity, proposed_initial_margin):
+        """Prevents trade if it uses > 50% of remaining buffer."""
+        buffer_limit = current_excess_liquidity * 0.5
+        return proposed_initial_margin < buffer_limit
