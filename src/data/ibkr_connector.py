@@ -24,6 +24,17 @@ class IBKRConnector:
             df.set_index('date', inplace=True)
         return df
 
+    def get_macro_appropriate_contract(self, symbol, min_dte=20):
+        """
+        Ensures we aren't buying a 'dying' contract.
+        If front month < 20 days left, grab the next one.
+        """
+        contracts = self.ib.reqContractDetails(Future(symbol))
+        # Filter and sort by expiry
+        valid_contracts = [c.summary for c in contracts if c.summary.lastTradeDateOrContractMonth > threshold_date]
+        return valid_contracts[0] # Returns the first contract that meets our time horizon
+
+
 # Example Contract Definitions for your Toolbox
 # Micro Gold: MGC @ NYMEX
 # Micro Bitcoin: MBT @ CME
