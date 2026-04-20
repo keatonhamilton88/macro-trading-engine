@@ -6,9 +6,10 @@ class PositionSizer:
         self.risk_per_trade = risk_per_trade
         # Multipliers for IBKR/CME contracts
         self.CONTRACT_SPECS = {
-            "MES": 5, "MNQ": 2, "MBT": 0.1, "MET": 1.0,
-            "GC": 100, "CL": 1000, "ZS": 50, "KE": 50, "MNG": 2500,
-            "6E": 125000, "ZN": 1000, "ZT": 2000
+            "MES": 5, "MNQ": 2, "MBT": 0.1, "MET": 1.0, # Equities/Crypto
+            "MGC": 10, "MCL": 100, "MNG": 500,           # Micro Commodities
+            "ZS": 50, "KE": 50, "ZC": 50, "ZW": 50,      # Full-size Ags
+            "6E": 125000, "ZN": 1000, "ZT": 2000         # FX and Rates
         }
 
     def get_quantity(self, ticker, atr, risk_multiple=2.0):
