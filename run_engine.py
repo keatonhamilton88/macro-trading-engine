@@ -25,6 +25,10 @@ def run_trading_engine():
     except Exception as e:
         print(f"❌ Connection Failed: {e}. Is TWS/Gateway running?")
         return
+    # -----------------------------------
+    # 1.5 INITIALIZE FRED API CONNECTION
+    # -----------------------------------
+    fred_loader = FredLoader(api_key='YOUR_KEY')
 
     # -----------------------------------
     # 2. DATA INGESTION (Layers 0-1)
